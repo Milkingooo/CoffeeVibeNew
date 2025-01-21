@@ -2,6 +2,7 @@ package com.example.coffeevibe.ui.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,8 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,10 +60,11 @@ fun MenuScreen(
                 BottomAppBar(
                     actions = {
                         IconButton(onClick = { /* do something */ }) {
-                            Icon(Icons.Filled.ArrowUpward,
+                            Icon(
+                                Icons.Filled.ArrowUpward,
                                 contentDescription = "Localized description",
                                 tint = colorScheme.onBackground
-                                )
+                            )
                         }
                         IconButton(onClick = {
                             inAccount()
@@ -78,9 +82,11 @@ fun MenuScreen(
                             containerColor = colorScheme.primary,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                         ) {
-                            Icon(Icons.Filled.ShoppingCart,
+                            Icon(
+                                Icons.Filled.ShoppingCart,
                                 "Localized description",
-                                tint = colorScheme.onBackground)
+                                tint = colorScheme.onBackground
+                            )
                         }
                     },
                     modifier = Modifier
@@ -117,9 +123,9 @@ fun MenuScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
 
-                ) {
+                    ) {
                     items(100) {
-                        ListItem(name = it.toString() , price = it + 100)
+                        ListItem(name = it.toString(), price = it + 100)
                     }
                 }
 
@@ -139,16 +145,27 @@ fun DefaultPreview() {
 
 @Composable
 fun ListItem(name: String, price: Int) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(16.dp))
-            .padding(16.dp)
-    ) {
+    val isSelected = remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = name, fontWeight = FontWeight.Bold)
-        Text(text = "$price руб.", color = Color.Gray)
-    }
+    CoffeeVibeTheme(content = {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(colorScheme.background, shape = RoundedCornerShape(16.dp))
+                .border(
+                    1.dp,
+                    if (isSelected.value) colorScheme.primary else Color.Gray,
+                    RoundedCornerShape(16.dp)
+                )
+                .padding(16.dp)
+                .clickable {
+                    isSelected.value = !isSelected.value
+                }
+        ) {
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = name, fontWeight = FontWeight.Bold)
+            Text(text = "$price руб.", color = Color.Gray)
+        }
+    })
 }
