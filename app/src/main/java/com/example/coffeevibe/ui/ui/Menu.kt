@@ -1,9 +1,7 @@
 package com.example.coffeevibe.ui.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,8 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,10 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -75,10 +74,11 @@ fun MenuScreen(
                                 tint = colorScheme.onBackground
                             )
                         }
+
                     },
                     floatingActionButton = {
                         FloatingActionButton(
-                            onClick = { /* do something */ },
+                            onClick = { inCart() },
                             containerColor = colorScheme.primary,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                         ) {
@@ -119,7 +119,7 @@ fun MenuScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
-                        .padding(16.dp),
+                        .padding(start = 16.dp, end = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
 
@@ -148,24 +148,53 @@ fun ListItem(name: String, price: Int) {
     val isSelected = remember { mutableStateOf(false) }
 
     CoffeeVibeTheme(content = {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Card(
             modifier = Modifier
-                .background(colorScheme.background, shape = RoundedCornerShape(16.dp))
-                .border(
-                    1.dp,
-                    if (isSelected.value) colorScheme.primary else Color.Gray,
-                    RoundedCornerShape(16.dp)
-                )
-                .padding(16.dp)
-                .clickable {
-                    isSelected.value = !isSelected.value
-                }
-        ) {
+                .width(150.dp)
+                .height(250.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = colorScheme.surface,
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = name, fontWeight = FontWeight.Bold)
-            Text(text = "$price руб.", color = Color.Gray)
+            ),
+            shape = RoundedCornerShape(16.dp),
+
+        ){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .clickable {
+                        isSelected.value = !isSelected.value
+                    },
+                verticalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                Icon(
+                    Icons.Filled.Fastfood,
+                    contentDescription = "Localized description",
+                    tint = colorScheme.onBackground,
+                    modifier = Modifier
+                        .width(80.dp)
+                        .height(80.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = name, fontWeight = FontWeight.Bold)
+                Text(text = "$price руб.", color = Color.Gray)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = { /* do something */ },
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Text(text = "Add",
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
+                        )
+                }
+            }
         }
     })
 }
