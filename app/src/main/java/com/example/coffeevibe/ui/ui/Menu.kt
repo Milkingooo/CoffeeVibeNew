@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandHorizontally
@@ -52,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -63,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.utils.NetworkUtils
 
 @Composable
 fun MenuScreen(
@@ -72,6 +75,8 @@ fun MenuScreen(
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val networkAvailable = remember { NetworkUtils.isNetworkAvailable(context) }
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -119,97 +124,107 @@ fun MenuScreen(
                 .background(colorScheme.background)
         ) { innerPadding ->
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorScheme.background)
-                    .padding(innerPadding)
-            ) {
-                Row(
+            if (!networkAvailable) {
+                NotInternet(){ }
+            } else {
+
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .fillMaxSize()
+                        .background(colorScheme.background)
+                        .padding(innerPadding)
                 ) {
-                    if(!isSearching) {
-                        Text(
-                            text = "Menu",
-                            color = colorScheme.onBackground,
-                            fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-                            fontSize = 28.sp,
-                            textAlign = TextAlign.Left
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = isSearching,
-                        enter = fadeIn() + expandHorizontally(),
-                        exit = shrinkHorizontally() + fadeOut()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = {
-                                searchQuery = it
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto_condensed_black))
-                            ),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = colorScheme.onBackground,
-                                unfocusedBorderColor = colorScheme.onSurface,
-                                unfocusedPlaceholderColor = colorScheme.onBackground,
-                                focusedTextColor = colorScheme.onBackground,
-                                unfocusedTextColor = colorScheme.onBackground,
-                            ),
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Search,
-                                    contentDescription = "Search",
-                                    tint = colorScheme.onBackground
-                                )
-                            },
-                            placeholder = { Text(text = "Search passwords", color = colorScheme.onSurface) },
-                            shape = MaterialTheme.shapes.large,
-                            singleLine = true,
-                        )
+                        if (!isSearching) {
+                            Text(
+                                text = "Menu",
+                                color = colorScheme.onBackground,
+                                fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                                fontSize = 28.sp,
+                                textAlign = TextAlign.Left
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = isSearching,
+                            enter = fadeIn() + expandHorizontally(),
+                            exit = shrinkHorizontally() + fadeOut()
+                        ) {
+                            OutlinedTextField(
+                                value = searchQuery,
+                                onValueChange = {
+                                    searchQuery = it
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_black))
+                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = colorScheme.onBackground,
+                                    unfocusedBorderColor = colorScheme.onSurface,
+                                    unfocusedPlaceholderColor = colorScheme.onBackground,
+                                    focusedTextColor = colorScheme.onBackground,
+                                    unfocusedTextColor = colorScheme.onBackground,
+                                ),
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.Search,
+                                        contentDescription = "Search",
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = "Search passwords",
+                                        color = colorScheme.onSurface
+                                    )
+                                },
+                                shape = MaterialTheme.shapes.large,
+                                singleLine = true,
+                            )
+                        }
+                        IconButton(onClick = {
+                            isSearching = !isSearching
+                            searchQuery = ""
+                        }) {
+                            Icon(
+                                Icons.Filled.Search,
+                                contentDescription = "Search",
+                                tint = colorScheme.onBackground,
+                                modifier = Modifier
+                                    .width(32.dp)
+                                    .height(32.dp)
+                            )
+                        }
                     }
-                    IconButton(onClick = {
-                        isSearching = !isSearching
-                        searchQuery = ""
-                    }){
-                        Icon(
-                            Icons.Filled.Search,
-                            contentDescription = "Search",
-                            tint = colorScheme.onBackground,
-                            modifier = Modifier
-                                .width(32.dp)
-                                .height(32.dp)
-                        )
-                    }
-                }
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                    items(100) {
-                        ListItem(name = it.toString(),
-                            price = it + 100,
-                            onInfo = {
-                                showInfo = true
-                            }
-                        )
+                        items(100) {
+                            ListItem(name = it.toString(),
+                                price = it + 100,
+                                onInfo = {
+                                    showInfo = true
+                                }
+                            )
+                        }
                     }
-                }
 
-                if(showInfo){
-                    MinimalDialog(onDismissRequest = {
-                        showInfo = false
-                    })
+                    if (showInfo) {
+                        MinimalDialog(onDismissRequest = {
+                            showInfo = false
+                        })
+                    }
                 }
             }
         }
@@ -228,7 +243,8 @@ fun DefaultPreview() {
 @Composable
 fun ListItem(name: String,
              price: Int,
-             onInfo: () -> Unit) {
+             onInfo: () -> Unit)
+{
     var expanded by remember { mutableStateOf(false) }
 
     CoffeeVibeTheme(content = {
