@@ -5,16 +5,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.coffeevibe.ui.ui.LoginScreen
+import com.example.coffeevibe.ui.ui.Registr
 
-class LoginActivity : ComponentActivity() {
+class RegActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LoginScreen(
-                inReg = {
-                    startActivity(Intent(this, RegActivity::class.java))
+            Registr(
+                inLogin = {
+                    startActivity(Intent(this, LoginActivity::class.java))
                     finish()
                 }
             )

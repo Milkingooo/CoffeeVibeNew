@@ -1,6 +1,7 @@
 package com.example.coffeevibe.ui.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,7 +41,9 @@ import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    inReg: () -> Unit,
+) {
     var password by remember { mutableStateOf("") }
     var login by remember { mutableStateOf("") }
     val isInCorrect by remember { mutableStateOf(false) }
@@ -146,6 +149,17 @@ fun LoginScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "Forgot password?",
+                textAlign = TextAlign.Left,
+                fontSize = 16.sp,
+                modifier = Modifier.fillMaxWidth(),
+                color = colorScheme.onBackground,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
@@ -167,6 +181,21 @@ fun LoginScreen() {
                     fontSize = 18.sp
                 )
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "New user? Sign Up",
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        inReg()
+                    },
+                color = colorScheme.onBackground,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
+            )
         }
     })
 }
@@ -174,6 +203,6 @@ fun LoginScreen() {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    LoginScreen()
+    LoginScreen({})
 }
 

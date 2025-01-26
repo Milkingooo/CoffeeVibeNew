@@ -2,4 +2,6 @@
     <string name="app_name">CoffeeVibe</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_cart">CartActivity</string>
+    <string name="title_activity_reg">RegActivity</string>
+    <string name="title_activity_account">AccountActivity</string>
 </resources>

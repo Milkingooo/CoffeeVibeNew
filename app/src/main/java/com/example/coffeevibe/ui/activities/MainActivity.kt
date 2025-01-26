@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.coffeevibe.ui.activities.ui.theme.AccountActivity
+import com.example.coffeevibe.ui.ui.AccountPreview
 import com.example.coffeevibe.ui.ui.MenuScreen
 
 class MainActivity : ComponentActivity() {
@@ -17,7 +19,7 @@ class MainActivity : ComponentActivity() {
                     startActivity(Intent(this, CartActivity::class.java))
                 },
                 inAccount = {
-                    startActivity(Intent(this, LoginActivity::class.java))
+                    startActivity(Intent(this, AccountActivity::class.java))
                 }
             )
         }
