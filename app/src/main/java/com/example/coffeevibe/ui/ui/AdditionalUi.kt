@@ -1,6 +1,8 @@
 package com.example.coffeevibe.ui.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material3.Card
@@ -38,7 +42,8 @@ import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 @Composable
 fun MinimalDialog(onDismissRequest: () -> Unit,
                   description: String,
-                  image: String
+                  image: String,
+                  name: String
 ) {
     CoffeeVibeTheme(content = {
         Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -76,11 +81,21 @@ fun MinimalDialog(onDismissRequest: () -> Unit,
 
                     Spacer(modifier = Modifier.height(36.dp))
 
-                    Text(text = description,
+                    Text(text = name,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
-                        color = colorScheme.onSurface,
+                        color = colorScheme.onBackground,
                         textAlign = TextAlign.Center,
                         fontSize = 20.sp)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = description,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                        color = colorScheme.onBackground,
+                        textAlign = TextAlign.Center,
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState()))
                 }
             }
         }
@@ -93,6 +108,7 @@ fun MinDialogPreview() {
     MinimalDialog(
         onDismissRequest = {},
         description = "Некоторое описание чего-то там, может быть даже полезное, но это вряд-ли :)",
-        image = ""
+        image = "",
+        name = ""
     )
 }

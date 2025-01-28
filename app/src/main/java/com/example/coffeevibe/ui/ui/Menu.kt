@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -49,6 +51,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,6 +73,7 @@ import coil.request.ImageRequest
 import com.example.coffeevibe.R
 import com.example.coffeevibe.model.MenuItem
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
 
 @Composable
@@ -81,10 +85,13 @@ fun MenuScreen(
     var isSearching by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val networkAvailable = true
-        //remember { NetworkUtils.isNetworkAvailable(context) }
+    val networkAvailable = remember { NetworkUtils.isNetworkAvailable(context) }
     val menuViewModel = MenuViewModel(context)
     val goods by menuViewModel.dataList.collectAsState()
+    var selectedDescription by remember { mutableStateOf("") }
+    var selectedImage by remember { mutableStateOf("") }
+    var selectedName by remember { mutableStateOf("") }
+    val listState = rememberLazyGridState()
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -155,7 +162,7 @@ fun MenuScreen(
                                 color = colorScheme.onBackground,
                                 fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                                 fontSize = 28.sp,
-                                textAlign = TextAlign.Left
+                                textAlign = TextAlign.Left,
                             )
                         }
                         AnimatedVisibility(
@@ -217,26 +224,47 @@ fun MenuScreen(
                             .padding(start = 16.dp, end = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        state = listState,
                     ) {
-                        items(goods.size) {
-                            ListItem(
-                                name = goods[it].name,
-                                price = goods[it].price,
-                                image = goods[it].image,
-                                onInfo = {
-                                    showInfo = true
-                                }
-                            )
-                            Log.d("ListItem", goods[it].name + goods[it].price + goods[it].image)
+                        val filteredGoods = if (searchQuery.isBlank()) {
+                            goods
+                        } else {
+                            goods.filter {
+                                it.name.contains(searchQuery, true) ||
+                                        it.name.contains(searchQuery, true)
+                            }
+                        }
+                        if (filteredGoods.isNotEmpty()) {
+                            items(filteredGoods.size) {
+                                ListItem(
+                                    name = filteredGoods[it].name,
+                                    price = filteredGoods[it].price,
+                                    image = filteredGoods[it].image,
+                                    onInfo = {
+                                        showInfo = true
+                                        selectedDescription = filteredGoods[it].description
+                                        selectedImage = filteredGoods[it].image
+                                        selectedName = filteredGoods[it].name
+                                    }
+                                )
+                                Log.d(
+                                    "ListItem",
+                                    goods[it].name + goods[it].price + goods[it].image
+                                )
+                            }
                         }
                     }
 
                     if (showInfo) {
                         MinimalDialog(onDismissRequest = {
                             showInfo = false
+                            selectedDescription = ""
+                            selectedImage = ""
+                            selectedName = ""
                         },
-                            description = goods[0].description,
-                            image = goods[0].image
+                            description = selectedDescription,
+                            image = selectedImage,
+                            name = selectedName
                         )
                     }
                 }
@@ -267,7 +295,7 @@ fun ListItem(name: String,
         OutlinedCard(
             modifier = Modifier
                 .width(150.dp)
-                .height(280.dp)
+                .height(300.dp)
                 .animateContentSize()
                 .clickable {
                     onInfo()
@@ -286,7 +314,7 @@ fun ListItem(name: String,
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 Image(
-                    painter = // Плавный переход при загрузке нового изображения
+                    painter =
                     rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
                             crossfade(true) // Плавный переход при загрузке нового изображения
@@ -298,6 +326,7 @@ fun ListItem(name: String,
                     .height(130.dp)
                     .clip(shape = RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop,
+
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -305,7 +334,9 @@ fun ListItem(name: String,
                 Text(text = name,
                     fontWeight = FontWeight.Bold,
                     color = colorScheme.onBackground,
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .animateContentSize())
                 Text(text = "$price руб.",
                     color = colorScheme.onBackground,
                     textAlign = TextAlign.Center)
