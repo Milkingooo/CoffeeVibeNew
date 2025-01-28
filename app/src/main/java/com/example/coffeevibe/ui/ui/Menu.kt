@@ -1,6 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandHorizontally
@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,8 +31,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -45,6 +44,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,19 +54,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.coffeevibe.R
+import com.example.coffeevibe.model.MenuItem
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
-import com.example.coffeevibe.utils.NetworkUtils
+import com.example.coffeevibe.viewmodel.MenuViewModel
 
 @Composable
 fun MenuScreen(
@@ -76,7 +81,10 @@ fun MenuScreen(
     var isSearching by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val networkAvailable = remember { NetworkUtils.isNetworkAvailable(context) }
+    val networkAvailable = true
+        //remember { NetworkUtils.isNetworkAvailable(context) }
+    val menuViewModel = MenuViewModel(context)
+    val goods by menuViewModel.dataList.collectAsState()
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -210,20 +218,26 @@ fun MenuScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        items(100) {
-                            ListItem(name = it.toString(),
-                                price = it + 100,
+                        items(goods.size) {
+                            ListItem(
+                                name = goods[it].name,
+                                price = goods[it].price,
+                                image = goods[it].image,
                                 onInfo = {
                                     showInfo = true
                                 }
                             )
+                            Log.d("ListItem", goods[it].name + goods[it].price + goods[it].image)
                         }
                     }
 
                     if (showInfo) {
                         MinimalDialog(onDismissRequest = {
                             showInfo = false
-                        })
+                        },
+                            description = goods[0].description,
+                            image = goods[0].image
+                        )
                     }
                 }
             }
@@ -243,7 +257,9 @@ fun DefaultPreview() {
 @Composable
 fun ListItem(name: String,
              price: Int,
-             onInfo: () -> Unit)
+             image: String,
+             onInfo: () -> Unit,
+)
 {
     var expanded by remember { mutableStateOf(false) }
 
@@ -251,7 +267,7 @@ fun ListItem(name: String,
         OutlinedCard(
             modifier = Modifier
                 .width(150.dp)
-                .height(250.dp)
+                .height(280.dp)
                 .animateContentSize()
                 .clickable {
                     onInfo()
@@ -269,19 +285,30 @@ fun ListItem(name: String,
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Icon(
-                    Icons.Filled.Fastfood,
-                    contentDescription = "Localized description",
-                    tint = colorScheme.onBackground,
+                Image(
+                    painter = // Плавный переход при загрузке нового изображения
+                    rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
+                            crossfade(true) // Плавный переход при загрузке нового изображения
+                        }).build()
+                    ),
+                    contentDescription = null, // Описание для доступности
                     modifier = Modifier
-                        .width(80.dp)
-                        .height(80.dp)
+                    .width(130.dp)
+                    .height(130.dp)
+                    .clip(shape = RoundedCornerShape(20.dp)),
+                    contentScale = ContentScale.Crop,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = name, fontWeight = FontWeight.Bold)
-                Text(text = "$price руб.", color = Color.Gray)
+                Text(text = name,
+                    fontWeight = FontWeight.Bold,
+                    color = colorScheme.onBackground,
+                    textAlign = TextAlign.Center)
+                Text(text = "$price руб.",
+                    color = colorScheme.onBackground,
+                    textAlign = TextAlign.Center)
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -291,9 +318,10 @@ fun ListItem(name: String,
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {
-                    Text(text = "Add",
+                    Text(text = "Add to cart",
                         color = colorScheme.onBackground,
-                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+
                         )
                 }
             }

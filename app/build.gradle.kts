@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.coffeevibe"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.coffeevibe"
@@ -54,6 +54,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.firebase.database)
     implementation(libs.firebase.firestore)
+    implementation(libs.compose)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

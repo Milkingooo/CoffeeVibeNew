@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -26,11 +30,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 
 @Composable
-fun MinimalDialog(onDismissRequest: () -> Unit) {
+fun MinimalDialog(onDismissRequest: () -> Unit,
+                  description: String,
+                  image: String
+) {
     CoffeeVibeTheme(content = {
         Dialog(onDismissRequest = { onDismissRequest() }) {
             Card(
@@ -50,18 +59,24 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Icon(
-                        Icons.Filled.Fastfood,
-                        contentDescription = "Localized description",
-                        tint = colorScheme.onBackground,
+                    Image(
+                        painter =
+                        rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
+                                crossfade(true) // Плавный переход при загрузке нового изображения
+                            }).build()
+                        ),
+                        contentDescription = null, // Описание для доступности
                         modifier = Modifier
-                            .width(80.dp)
-                            .height(80.dp)
+                        .width(250.dp)
+                        .height(250.dp)
+                            .clip(shape = RoundedCornerShape(20.dp)),
+                                contentScale = ContentScale.Crop,
                     )
 
                     Spacer(modifier = Modifier.height(36.dp))
 
-                    Text(text = "Некоторое описание чего-то там, может быть даже полезное, но это вряд-ли :)",
+                    Text(text = description,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                         color = colorScheme.onSurface,
                         textAlign = TextAlign.Center,
@@ -75,5 +90,9 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun MinDialogPreview() {
-    MinimalDialog {}
+    MinimalDialog(
+        onDismissRequest = {},
+        description = "Некоторое описание чего-то там, может быть даже полезное, но это вряд-ли :)",
+        image = ""
+    )
 }

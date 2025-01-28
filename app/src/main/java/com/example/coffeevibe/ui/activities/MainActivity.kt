@@ -8,12 +8,15 @@ import androidx.activity.enableEdgeToEdge
 import com.example.coffeevibe.ui.activities.ui.theme.AccountActivity
 import com.example.coffeevibe.ui.ui.AccountPreview
 import com.example.coffeevibe.ui.ui.MenuScreen
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            FirebaseApp.initializeApp(this)
+
             MenuScreen(
                 inCart = {
                     startActivity(Intent(this, CartActivity::class.java))
