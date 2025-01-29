@@ -75,6 +75,7 @@ import com.example.coffeevibe.model.MenuItem
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuScreen(
@@ -92,13 +93,18 @@ fun MenuScreen(
     var selectedImage by remember { mutableStateOf("") }
     var selectedName by remember { mutableStateOf("") }
     val listState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     CoffeeVibeTheme(content = {
         Scaffold(
             bottomBar = {
                 BottomAppBar(
                     actions = {
-                        IconButton(onClick = { /* do something */ }) {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(0)
+                            }
+                        }) {
                             Icon(
                                 Icons.Filled.ArrowUpward,
                                 contentDescription = "Localized description",
@@ -217,6 +223,10 @@ fun MenuScreen(
                             )
                         }
                     }
+
+                    OrderNumber()
+
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),

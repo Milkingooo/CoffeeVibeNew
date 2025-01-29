@@ -2,6 +2,7 @@ package com.example.coffeevibe.ui.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +29,7 @@ fun OrderNumber() {
     CoffeeVibeTheme(content = {
         Card(
             modifier = Modifier
+                .padding(16.dp)
                 .fillMaxWidth()
                 .height(116.dp)
                 .background(colorScheme.surface, RoundedCornerShape(16.dp)),
@@ -41,12 +43,20 @@ fun OrderNumber() {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Номер заказа: 52",
-                    color = colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-                    fontSize = 26.sp
-                )
+                Column{
+                    Text(
+                        text = "Номер заказа: 52",
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                        fontSize = 26.sp
+                    )
+                    Text(
+                        text = "Оплата наличными при получении",
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                        fontSize = 16.sp
+                    )
+                }
                 Text(
                     text = "150 руб.",
                     color = colorScheme.onBackground,
