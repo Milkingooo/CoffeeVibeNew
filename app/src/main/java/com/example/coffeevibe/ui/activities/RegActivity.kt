@@ -16,6 +16,10 @@ class RegActivity : ComponentActivity() {
                 inLogin = {
                     startActivity(Intent(this, LoginActivity::class.java))
                     finish()
+                },
+                isReg = {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
                 }
             )
         }

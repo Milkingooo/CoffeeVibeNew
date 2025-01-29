@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.compose)
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.coil.compose)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

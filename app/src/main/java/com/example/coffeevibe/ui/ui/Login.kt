@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -39,14 +41,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     inReg: () -> Unit,
+    onLogin: () -> Unit,
 ) {
     var password by remember { mutableStateOf("") }
-    var login by remember { mutableStateOf("") }
-    val isInCorrect by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    var isInCorrect by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val loginVm = LoginViewModel(context)
 
     CoffeeVibeTheme(content = {
         Column(
@@ -71,7 +77,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.size(16.dp))
 
             Text(
-                text = "Login",
+                text = "Email",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp, // Используем стиль текста из темы
                 modifier = Modifier.fillMaxWidth(),
@@ -82,8 +88,8 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
-                value = login,
-                onValueChange = { login = it },
+                value = email,
+                onValueChange = { email = it },
                 textStyle = TextStyle(
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_black))
@@ -95,7 +101,7 @@ fun LoginScreen(
                     focusedTextColor = colorScheme.onBackground,
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
-                placeholder = { Text("Enter login", color = colorScheme.onSurface) },
+                placeholder = { Text("Enter email", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 maxLines = 1,
                 leadingIcon = {
@@ -155,7 +161,12 @@ fun LoginScreen(
                 text = "Forgot password?",
                 textAlign = TextAlign.Left,
                 fontSize = 16.sp,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable{
+                        if (email.isNotBlank()) loginVm.sendPasswordResetEmail(email = email)
+                        else Toast.makeText(context, "Enter email", Toast.LENGTH_SHORT).show()
+                    },
                 color = colorScheme.onBackground,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
             )
@@ -164,7 +175,19 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    //TODO:Auth
+                    loginVm.login(
+                        login = email,
+                        password = password,
+                        isLogin = {
+                            if(it) {
+                                isInCorrect = false
+                                onLogin()
+                            }
+                            else {
+                                isInCorrect = true
+                            }
+                        }
+                    )
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.primary,
@@ -203,6 +226,6 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    LoginScreen({})
+    LoginScreen({}, {})
 }
 

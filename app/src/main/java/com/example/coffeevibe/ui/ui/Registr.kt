@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -40,15 +41,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.viewmodel.LoginViewModel
 
 @Composable
 fun Registr(
     inLogin: () -> Unit,
+    isReg: () -> Unit,
 ) {
     var password by remember { mutableStateOf("") }
-    var login by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    val isInCorrect by remember { mutableStateOf(false) }
+    var isInCorrect by remember { mutableStateOf(false) }
+    val loginVm = LoginViewModel(LocalContext.current)
 
     CoffeeVibeTheme(content = {
         Column(
@@ -60,7 +64,7 @@ fun Registr(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Registration",
+                text = "Sign up",
                 color = colorScheme.onBackground,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,7 +77,7 @@ fun Registr(
             Spacer(modifier = Modifier.size(16.dp))
 
             Text(
-                text = "Login",
+                text = "Name",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp, // Используем стиль текста из темы
                 modifier = Modifier.fillMaxWidth(),
@@ -84,8 +88,8 @@ fun Registr(
             Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
-                value = login,
-                onValueChange = { login = it },
+                value = name,
+                onValueChange = { name = it },
                 textStyle = TextStyle(
                     fontSize = 20.sp,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_black))
@@ -97,7 +101,7 @@ fun Registr(
                     focusedTextColor = colorScheme.onBackground,
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
-                placeholder = { Text("Enter login", color = colorScheme.onSurface) },
+                placeholder = { Text("Enter your name", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 maxLines = 1,
                 leadingIcon = {
@@ -196,7 +200,17 @@ fun Registr(
 
             Button(
                 onClick = {
-                    //TODO:Registration
+                    loginVm.signUp(
+                        email = email,
+                        password = password,
+                        name = name){
+                        if(it){
+                            isInCorrect = false
+                            inLogin()
+                            isReg()
+                        }
+                        else isInCorrect = true
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.primary,
@@ -235,6 +249,6 @@ fun Registr(
 @Preview(showBackground = true)
 @Composable
 fun RegPreview() {
-    Registr({})
+    Registr({}, {})
 }
 

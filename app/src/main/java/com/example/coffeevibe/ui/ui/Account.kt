@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,8 +23,14 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -34,12 +41,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.viewmodel.LoginViewModel
 
 @Composable
 fun AccountScreen(
     onClose: () -> Unit,
     logOut: () -> Unit
 ) {
+    val context = LocalContext.current
+    val loginVm = LoginViewModel(context)
+    var name by remember { mutableStateOf("") }
+    var isUserLoggedIn by remember { mutableStateOf(false) }
+    isUserLoggedIn = loginVm.isLogin()
+
+    loginVm.giveUserName {
+        name = it
+    }
+
     CoffeeVibeTheme(content = {
         Scaffold(
             modifier = Modifier
@@ -65,7 +83,7 @@ fun AccountScreen(
                 )
 
                 Text(
-                    text = "Milkingooo",
+                    text = name,
                     color = colorScheme.onBackground,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -82,6 +100,7 @@ fun AccountScreen(
                 Button(
                     onClick = {
                         logOut()
+                        loginVm.logout()
                     },
                     colors = ButtonDefaults.buttonColors(colorScheme.primary),
                     shape = RoundedCornerShape(16.dp),
@@ -91,7 +110,7 @@ fun AccountScreen(
                         .height(50.dp)
                 ) {
                     Text(
-                        "Log out",
+                        text = if(isUserLoggedIn) "Log out" else "Log in",
                         style = TextStyle(
                             fontSize = 16.sp,
                             color = colorScheme.onBackground,
