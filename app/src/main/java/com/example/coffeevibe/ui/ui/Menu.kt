@@ -224,7 +224,7 @@ fun MenuScreen(
                         }
                     }
 
-                    OrderNumber()
+                    //OrderNumber()
 
                     Spacer(modifier = Modifier.height(4.dp))
 
