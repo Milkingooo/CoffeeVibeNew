@@ -9,13 +9,13 @@ import com.example.coffeevibe.utils.NotificationUtils
 
 interface FirebaseDaoInterface {
     fun getAllPositions() : List<MenuItem>
-    fun addOrder(
-        id: Int,
-        idClient: Int,
-        orderNum: Int,
-        quantity: Int,
-        date: String
-    )
+//    fun addOrder(
+//        id: Int,
+//        idClient: Int,
+//        orderNum: Int,
+//        quantity: Int,
+//        date: String
+//    )
     fun getUserId() : String
 }
 
@@ -47,29 +47,29 @@ class FirebaseDao(val context: Context) : FirebaseDaoInterface {
         return items
     }
 
-    override fun addOrder(
-        id: Int,
-        idClient: Int,
-        orderNum: Int,
-        quantity: Int,
-        date: String
-    ) {
-        val item = OrderItem(
-            id = id,
-            idClient = idClient,
-            orderNum = orderNum,
-            quantity = quantity,
-            date = date
-        )
-        db.collection("Order")
-            .add(item)
-            .addOnSuccessListener { result ->
-                NotificationUtils.sendSimpleNotification(context, "Order", "Order added" )
-            }
-        .addOnFailureListener { exception ->
-            Log.d("Error adding order", exception.toString())
-        }
-    }
+//    override fun addOrder(
+//        id: Int,
+//        idClient: Int,
+//        orderNum: Int,
+//        quantity: Int,
+//        date: String
+//    ) {
+//        val item = OrderItem(
+//            id = id,
+//            idClient = idClient,
+//            orderNum = orderNum,
+//            quantity = quantity,
+//            date = date
+//        )
+//        db.collection("Order")
+//            .add(item)
+//            .addOnSuccessListener { result ->
+//                NotificationUtils.sendSimpleNotification(context, "Order", "Order added" )
+//            }
+//        .addOnFailureListener { exception ->
+//            Log.d("Error adding order", exception.toString())
+//        }
+//    }
 
     override fun getUserId() : String {
         var userId = ""

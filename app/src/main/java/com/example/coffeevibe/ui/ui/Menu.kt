@@ -72,9 +72,11 @@ import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.coffeevibe.R
 import com.example.coffeevibe.model.MenuItem
+import com.example.coffeevibe.model.OrderItem
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
+import com.example.coffeevibe.viewmodel.OrderViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -88,6 +90,7 @@ fun MenuScreen(
     val context = LocalContext.current
     val networkAvailable = remember { NetworkUtils.isNetworkAvailable(context) }
     val menuViewModel = MenuViewModel(context)
+    val orderVm = OrderViewModel()
     val goods by menuViewModel.dataList.collectAsState()
     var selectedDescription by remember { mutableStateOf("") }
     var selectedImage by remember { mutableStateOf("") }
@@ -255,6 +258,16 @@ fun MenuScreen(
                                         selectedDescription = filteredGoods[it].description
                                         selectedImage = filteredGoods[it].image
                                         selectedName = filteredGoods[it].name
+                                    },
+                                    onAdd = {
+                                        orderVm.addItem(filteredGoods[it].let {
+                                            OrderItem(
+                                               id = it.id,
+                                               name = it.name,
+                                               price = it.price,
+                                               image = it.image,
+                                           )
+                                        })
                                     }
                                 )
                                 Log.d(
@@ -297,6 +310,7 @@ fun ListItem(name: String,
              price: Int,
              image: String,
              onInfo: () -> Unit,
+             onAdd: () -> Unit,
 )
 {
     var expanded by remember { mutableStateOf(false) }
@@ -356,6 +370,7 @@ fun ListItem(name: String,
                 Button(
                     onClick = {
                         expanded = !expanded
+                        onAdd()
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {

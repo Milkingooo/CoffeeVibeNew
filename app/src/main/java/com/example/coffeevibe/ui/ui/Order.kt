@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,9 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,12 +46,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.viewmodel.OrderViewModel
 
 @Composable
 fun CartScreen(
     onCreateOrder: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    val orderVm = OrderViewModel()
+    val orderItems by orderVm.itemList.collectAsState(emptyList())
+    Log.d("Order", orderItems.toString())
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -56,7 +64,7 @@ fun CartScreen(
                     actions = {
                         Spacer(modifier = Modifier.width(16.dp))
 
-                        Text(text = "Total price: 812 р.",
+                        Text(text = "Total price: ${orderVm.getTotalPrice()} руб.",
                             color = colorScheme.onBackground,
                             fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
                             fontSize = 22.sp,
@@ -119,8 +127,21 @@ fun CartScreen(
                         .padding(start = 16.dp, end = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    items(16, key = { it }) {
-                        CartItem(name = it.toString(), price = it + 100)
+                    items(100, key = { it }) {
+                        CartItem(
+                            name = "orderItems[it].name",
+                            price = 100,
+                            image = "orderItems[it].image",
+                            onDelete = {
+                                //orderVm.removeItem(orderItems[it].id)
+                            },
+                            onPlus = {
+                                //orderVm.plusItem(orderItems[it])
+                            },
+                            onMinus = {
+                                //orderVm.minusItem(orderItems[it])
+                            }
+                        )
                     }
                 }
             }
@@ -137,7 +158,13 @@ fun CartPreview() {
 }
 
 @Composable
-fun CartItem(name: String, price: Int) {
+fun CartItem(name: String,
+             price: Int,
+             image: String,
+             onDelete: () -> Unit,
+             onPlus: () -> Unit,
+             onMinus: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,7 +192,7 @@ fun CartItem(name: String, price: Int) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Column {
-                Text(text = "$name pizza", color = colorScheme.onBackground)
+                Text(text = "$name", color = colorScheme.onBackground)
                 Text(text = "$price руб.", color = colorScheme.onBackground)
             }
 
