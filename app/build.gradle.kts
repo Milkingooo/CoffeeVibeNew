@@ -3,6 +3,14 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
+}
+
+configurations {
+    create("cleanedAnnotations")
+    implementation {
+        exclude(group = "org.jetbrains", module = "annotations")
+    }
 }
 
 android {
@@ -17,7 +25,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+
     }
+
 
     buildTypes {
         release {
@@ -58,6 +70,15 @@ dependencies {
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.coil.compose)
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.landscapist.coil3)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.rxjava2)
+    implementation(libs.androidx.room.rxjava3)
+    implementation(libs.com.google.devtools.ksp.gradle.plugin)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +88,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    ksp(libs.androidx.room.compiler.v250)
 }

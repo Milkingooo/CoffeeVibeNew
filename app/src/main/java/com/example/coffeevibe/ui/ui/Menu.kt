@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,21 +20,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,17 +40,15 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -67,89 +59,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.coffeevibe.R
-import com.example.coffeevibe.model.MenuItem
-import com.example.coffeevibe.model.OrderItem
+import com.example.coffeevibe.database.CartDatabase
+import com.example.coffeevibe.database.CartEntity
+import com.example.coffeevibe.repository.CartRepository
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
 import com.example.coffeevibe.viewmodel.OrderViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun MenuScreen(
-    inAccount: () -> Unit,
-    inCart: () -> Unit,
+    orderVm: OrderViewModel,
+    menuViewModel: MenuViewModel
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
-    var showInfo by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val networkAvailable = remember { NetworkUtils.isNetworkAvailable(context) }
-    val menuViewModel = MenuViewModel(context)
-    val orderVm = OrderViewModel()
+    val networkAvailable by NetworkUtils.isNetworkAvailable(context).collectAsState(initial = true)
     val goods by menuViewModel.dataList.collectAsState()
-    var selectedDescription by remember { mutableStateOf("") }
-    var selectedImage by remember { mutableStateOf("") }
-    var selectedName by remember { mutableStateOf("") }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var isSearching by rememberSaveable { mutableStateOf(false) }
+    var showInfo by rememberSaveable { mutableStateOf(false) }
+    var selectedDescription by rememberSaveable { mutableStateOf("") }
+    var selectedImage by rememberSaveable { mutableStateOf("") }
+    var selectedName by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
 
     CoffeeVibeTheme(content = {
         Scaffold(
-            bottomBar = {
-                BottomAppBar(
-                    actions = {
-                        IconButton(onClick = {
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(0)
-                            }
-                        }) {
-                            Icon(
-                                Icons.Filled.ArrowUpward,
-                                contentDescription = "Localized description",
-                                tint = colorScheme.onBackground
-                            )
-                        }
-                        IconButton(onClick = {
-                            inAccount()
-                        }) {
-                            Icon(
-                                Icons.Filled.AccountCircle,
-                                contentDescription = "Localized description",
-                                tint = colorScheme.onBackground
-                            )
-                        }
-
-                    },
-                    floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { inCart() },
-                            containerColor = colorScheme.primary,
-                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        ) {
-                            Icon(
-                                Icons.Filled.ShoppingCart,
-                                "Localized description",
-                                tint = colorScheme.onBackground
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .background(color = colorScheme.background)
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                )
-            },
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colorScheme.background)
+            modifier = Modifier.background(colorScheme.background),
         ) { innerPadding ->
-
             if (!networkAvailable) {
-                NotInternet(){ }
+                NotInternet() { }
             } else {
 
                 Column(
@@ -157,6 +101,7 @@ fun MenuScreen(
                         .fillMaxSize()
                         .background(colorScheme.background)
                         .padding(innerPadding)
+                        .verticalScroll(scrollState)
                 ) {
                     Row(
                         modifier = Modifier
@@ -167,9 +112,9 @@ fun MenuScreen(
                     ) {
                         if (!isSearching) {
                             Text(
-                                text = "Menu",
+                                text = "Меню",
                                 color = colorScheme.onBackground,
-                                fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                                 fontSize = 28.sp,
                                 textAlign = TextAlign.Left,
                             )
@@ -204,7 +149,7 @@ fun MenuScreen(
                                 },
                                 placeholder = {
                                     Text(
-                                        text = "Search passwords",
+                                        text = "Поиск",
                                         color = colorScheme.onSurface
                                     )
                                 },
@@ -227,14 +172,13 @@ fun MenuScreen(
                         }
                     }
 
-                    //OrderNumber()
-
                     Spacer(modifier = Modifier.height(4.dp))
 
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier
-                            .padding(start = 16.dp, end = 16.dp),
+                            .padding(start = 16.dp, end = 16.dp)
+                            .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         state = listState,
@@ -243,12 +187,15 @@ fun MenuScreen(
                             goods
                         } else {
                             goods.filter {
-                                it.name.contains(searchQuery, true) ||
-                                        it.name.contains(searchQuery, true)
+                                it.name.contains(searchQuery, true)
                             }
                         }
                         if (filteredGoods.isNotEmpty()) {
-                            items(filteredGoods.size) {
+                            item(span = { GridItemSpan(2) }) {
+                                OrderNumber()
+                            }
+
+                            items(filteredGoods.size, key = { filteredGoods[it].id }) {
                                 ListItem(
                                     name = filteredGoods[it].name,
                                     price = filteredGoods[it].price,
@@ -260,31 +207,37 @@ fun MenuScreen(
                                         selectedName = filteredGoods[it].name
                                     },
                                     onAdd = {
-                                        orderVm.addItem(filteredGoods[it].let {
-                                            OrderItem(
-                                               id = it.id,
-                                               name = it.name,
-                                               price = it.price,
-                                               image = it.image,
-                                           )
-                                        })
-                                    }
+                                        orderVm.addItem(
+                                            id = filteredGoods[it].id,
+                                            name = filteredGoods[it].name,
+                                            price = filteredGoods[it].price,
+                                            image = filteredGoods[it].image,
+                                            quantity = 1
+                                        )
+                                    },
+                                    onDelete = {
+                                        orderVm.deleteItemById(filteredGoods[it].id)
+                                    },
+                                    isSelected = orderVm.isItemInCart(filteredGoods[it].id),
                                 )
                                 Log.d(
                                     "ListItem",
                                     goods[it].name + goods[it].price + goods[it].image
                                 )
                             }
+
                         }
+
                     }
 
                     if (showInfo) {
-                        MinimalDialog(onDismissRequest = {
-                            showInfo = false
-                            selectedDescription = ""
-                            selectedImage = ""
-                            selectedName = ""
-                        },
+                        MinimalDialog(
+                            onDismissRequest = {
+                                showInfo = false
+                                selectedDescription = ""
+                                selectedImage = ""
+                                selectedName = ""
+                            },
                             description = selectedDescription,
                             image = selectedImage,
                             name = selectedName
@@ -299,21 +252,24 @@ fun MenuScreen(
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MenuScreen(
-        {},
-        {}
-    )
+    val context = LocalContext.current
+    val passwordDb = CartDatabase.getDatabase(context)
+    val passwordDao = passwordDb.cartDao()
+    val repository = CartRepository(passwordDao)
+    val orderViewModel = OrderViewModel(repository)
+    MenuScreen(orderVm = orderViewModel, menuViewModel = MenuViewModel(context))
 }
 
 @Composable
-fun ListItem(name: String,
-             price: Int,
-             image: String,
-             onInfo: () -> Unit,
-             onAdd: () -> Unit,
-)
-{
-    var expanded by remember { mutableStateOf(false) }
+fun ListItem(
+    name: String,
+    price: Int,
+    image: String,
+    onInfo: () -> Unit,
+    onAdd: () -> Unit,
+    isSelected: Boolean = false,
+    onDelete: () -> Unit,
+) {
 
     CoffeeVibeTheme(content = {
         OutlinedCard(
@@ -328,8 +284,11 @@ fun ListItem(name: String,
                 containerColor = colorScheme.surface,
             ),
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(if(expanded) 2.dp else 1.dp, if(expanded) colorScheme.secondary else colorScheme.onSurface)
-        ){
+            border = BorderStroke(
+                if (isSelected) 2.dp else 1.dp,
+                if (isSelected) colorScheme.secondary else colorScheme.onSurface
+            )
+        ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
@@ -337,47 +296,49 @@ fun ListItem(name: String,
                     .padding(16.dp),
                 verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Image(
-                    painter =
-                    rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
-                            crossfade(true) // Плавный переход при загрузке нового изображения
-                        }).build()
-                    ),
+
+                AsyncImage(
+                    model =
+                        ImageRequest.Builder(LocalContext.current).data(data = image)
+                            .apply(block = fun ImageRequest.Builder.() {
+                                crossfade(true) // Плавный переход при загрузке нового изображения
+                            }).build(),
                     contentDescription = null, // Описание для доступности
                     modifier = Modifier
-                    .width(130.dp)
-                    .height(130.dp)
-                    .clip(shape = RoundedCornerShape(20.dp)),
+                        .width(130.dp)
+                        .height(130.dp)
+                        .clip(shape = RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop,
-
-                )
+                    )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = name,
+                Text(
+                    text = name,
                     fontWeight = FontWeight.Bold,
                     color = colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .animateContentSize())
-                Text(text = "$price руб.",
+                        .animateContentSize()
+                )
+                Text(
+                    text = "$price руб.",
                     color = colorScheme.onBackground,
-                    textAlign = TextAlign.Center)
+                    textAlign = TextAlign.Center
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
                     onClick = {
-                        expanded = !expanded
-                        onAdd()
+                        if(isSelected) onDelete() else onAdd()
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {
-                    Text(text = "Add to cart",
+                    Text(
+                        text = if(isSelected) "Из корзины" else "В корзину",
                         color = colorScheme.onBackground,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-
                         )
                 }
             }

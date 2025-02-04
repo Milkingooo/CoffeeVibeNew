@@ -12,18 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.coffeevibe.ui.activities.ui.theme.CoffeeVibeTheme
-import com.example.coffeevibe.ui.ui.CartScreen
+import com.example.coffeevibe.ui.ui.OrderFinish
 
-class CartActivity : ComponentActivity() {
+class OrderActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CartScreen(
-                onCreateOrder = {
-
-                }
-            )
+            OrderFinish(){
+                finish()
+            }
         }
     }
 }

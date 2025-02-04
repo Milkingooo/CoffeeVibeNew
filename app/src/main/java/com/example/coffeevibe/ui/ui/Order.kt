@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Remove
@@ -33,10 +36,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -44,45 +50,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.coffeevibe.R
+import com.example.coffeevibe.database.CartDatabase
+import com.example.coffeevibe.repository.CartRepository
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 import com.example.coffeevibe.viewmodel.OrderViewModel
 
 @Composable
 fun CartScreen(
-    onCreateOrder: () -> Unit
+    onCreateOrder: () -> Unit,
+    orderVm: OrderViewModel
 ) {
     val haptic = LocalHapticFeedback.current
-    val orderVm = OrderViewModel()
-    val orderItems by orderVm.itemList.collectAsState(emptyList())
-    Log.d("Order", orderItems.toString())
+    val orderItems by orderVm.itemList.collectAsState()
 
     CoffeeVibeTheme(content = {
         Scaffold(
             bottomBar = {
                 BottomAppBar(
                     actions = {
-                        Spacer(modifier = Modifier.width(16.dp))
+                        IconButton(onClick = { orderVm.deleteAllItems() }) {
+                            Icon(
+                                Icons.Filled.Delete,
+                                contentDescription = "Localized description",
+                                tint = colorScheme.onBackground,
+                                modifier = Modifier.size(26.dp)
+                            )
+                        }
 
-                        Text(text = "Total price: ${orderVm.getTotalPrice()} руб.",
+                        Text(
+                            text = "Итого: ${orderVm.getTotalPrice()} руб.",
                             color = colorScheme.onBackground,
                             fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
                             fontSize = 22.sp,
                         )
-//                        IconButton(onClick = { /* do something */ }) {
-//                            Icon(
-//                                Icons.Filled.DeleteSweep,
-//                                contentDescription = "Localized description",
-//                                tint = colorScheme.onBackground,
-//                                modifier = Modifier.size(26.dp)
-//                            )
-//                        }
 
                     },
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onCreateOrder()
                             },
                             containerColor = colorScheme.primary,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
@@ -127,19 +137,24 @@ fun CartScreen(
                         .padding(start = 16.dp, end = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    items(100, key = { it }) {
+                    items(orderItems, key = { it.id }) {
                         CartItem(
-                            name = "orderItems[it].name",
-                            price = 100,
-                            image = "orderItems[it].image",
+                            name = it.name,
+                            price = it.price,
+                            image = it.image,
+                            quantity = it.quantity,
                             onDelete = {
-                                //orderVm.removeItem(orderItems[it].id)
+                                orderVm.deleteItem(it)
                             },
                             onPlus = {
-                                //orderVm.plusItem(orderItems[it])
+                                orderVm.updateItem(it, it.quantity + 1)
                             },
                             onMinus = {
-                                //orderVm.minusItem(orderItems[it])
+                                if (it.price > 1) {
+                                    orderVm.updateItem(it, it.quantity - 1)
+                                } else {
+                                    orderVm.deleteItem(it)
+                                }
                             }
                         )
                     }
@@ -152,18 +167,26 @@ fun CartScreen(
 @Preview
 @Composable
 fun CartPreview() {
+    val context = LocalContext.current
+    val passwordDb = CartDatabase.getDatabase(context)
+    val passwordDao = passwordDb.cartDao()
+    val repository = CartRepository(passwordDao)
+    val orderViewModel = OrderViewModel(repository)
     CartScreen(
-        onCreateOrder = {}
+        onCreateOrder = {},
+        orderVm = orderViewModel
     )
 }
 
 @Composable
-fun CartItem(name: String,
-             price: Int,
-             image: String,
-             onDelete: () -> Unit,
-             onPlus: () -> Unit,
-             onMinus: () -> Unit
+fun CartItem(
+    name: String,
+    price: Int,
+    image: String,
+    quantity: Int,
+    onDelete: () -> Unit,
+    onPlus: () -> Unit,
+    onMinus: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -180,19 +203,24 @@ fun CartItem(name: String,
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Filled.Fastfood,
-                contentDescription = "Localized description",
-                tint = colorScheme.onBackground,
+            AsyncImage(
+                model =
+                ImageRequest.Builder(LocalContext.current).data(data = image)
+                    .apply(block = fun ImageRequest.Builder.() {
+                        crossfade(true) // Плавный переход при загрузке нового изображения
+                    }).build(),
+                contentDescription = null, // Описание для доступности
                 modifier = Modifier
-                    .width(40.dp)
-                    .height(40.dp)
+                    .width(80.dp)
+                    .height(80.dp)
+                    .clip(shape = RoundedCornerShape(20.dp)),
+                contentScale = ContentScale.Crop,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Column {
-                Text(text = "$name", color = colorScheme.onBackground)
+                Text(text = name, color = colorScheme.onBackground)
                 Text(text = "$price руб.", color = colorScheme.onBackground)
             }
 
@@ -201,7 +229,9 @@ fun CartItem(name: String,
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    onMinus()
+                }) {
                     Icon(
                         Icons.Filled.Remove,
                         contentDescription = "Localized description",
@@ -215,14 +245,16 @@ fun CartItem(name: String,
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "1",
+                    text = quantity.toString(),
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    onPlus()
+                }) {
                     Icon(
                         Icons.Filled.Add,
                         contentDescription = "Localized description",

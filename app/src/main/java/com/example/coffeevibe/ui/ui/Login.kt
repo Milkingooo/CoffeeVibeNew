@@ -101,6 +101,7 @@ fun LoginScreen(
                     focusedTextColor = colorScheme.onBackground,
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 placeholder = { Text("Enter email", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 maxLines = 1,

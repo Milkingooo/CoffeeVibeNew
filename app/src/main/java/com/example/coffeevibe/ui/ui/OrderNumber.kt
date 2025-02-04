@@ -36,12 +36,11 @@ fun OrderNumber() {
             colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
             shape = RoundedCornerShape(22.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Column{
                     Text(
@@ -50,15 +49,9 @@ fun OrderNumber() {
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                         fontSize = 26.sp
                     )
-                    Text(
-                        text = "Оплата наличными при получении",
-                        color = colorScheme.onBackground,
-                        fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
-                        fontSize = 16.sp
-                    )
                 }
                 Text(
-                    text = "150 руб.",
+                    text = "К оплате: 150 руб.",
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                     fontSize = 26.sp

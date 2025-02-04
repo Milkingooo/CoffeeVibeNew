@@ -4,67 +4,112 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.coffeevibe.database.CartDatabase
+import com.example.coffeevibe.database.CartEntity
 import com.example.coffeevibe.model.OrderItem
+import com.example.coffeevibe.model.OrderItemUi
+import com.example.coffeevibe.repository.CartRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class OrderViewModel() : ViewModel() {
+class OrderViewModel(private val repository: CartRepository) : ViewModel() {
 
-    private val _itemList = MutableStateFlow(emptyList<OrderItem>())
-    val itemList: Flow<List<OrderItem>> get() = _itemList.asStateFlow()
+    private val db = CartDatabase.getDatabase(Application())
+    private val cartDao = db.cartDao()
 
-    fun removeItem(id: Int) {
-        _itemList.update { currentItems ->
-            currentItems.filterNot { it.id == id }
-        }
+    private val _itemList = MutableStateFlow<List<CartEntity>>(emptyList())
+    val itemList: StateFlow<List<CartEntity>> = _itemList
+
+    init {
+        loadCartItems()
     }
 
-    fun isItemExist(id: Int): Boolean {
-        return _itemList.value.any { it.id == id }
-    }
-
-    fun addItem(item: OrderItem) {
-        _itemList.update { currentItems ->
-            if (currentItems.contains(item)) {
-                currentItems
-            } else {
-                currentItems.toMutableList().also { it.add(item) }
+    private fun loadCartItems() {
+        viewModelScope.launch {
+            try {
+                repository.getAllItems().collect { entities ->
+                    _itemList.value = entities
+                }
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error getting cart items: ${e.message}", e)
             }
         }
-        Log.d("Order", _itemList.value.toString())
+    }
+
+    fun addItem(id: Int, name: String, price: Int, quantity: Int, image: String) {
+        viewModelScope.launch {
+            try {
+                val newItem = CartEntity(
+                    idItem = id,
+                    name = name,
+                    price = price,
+                    quantity = quantity,
+                    image = image
+                )
+                repository.addItem(newItem)
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error adding password: ${e.message}", e)
+            }
+        }
+    }
+
+    fun deleteItem(item: CartEntity) {
+        viewModelScope.launch {
+            try {
+                cartDao.deleteItem(item)
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error deleting item: ${e.message}", e)
+            }
+        }
+    }
+
+    fun deleteItemById(id: Int) {
+        viewModelScope.launch {
+            try {
+                cartDao.deleteItemById(id)
+                Log.d("OrderListViewModel", "Item deleted: $id")
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error deleting item: ${e.message}", e)
+            }
+        }
+    }
+
+    fun isItemInCart(id: Int): Boolean {
+        return itemList.value.any { it.idItem == id }
+    }
+
+    fun deleteAllItems() {
+        viewModelScope.launch {
+            try {
+                cartDao.deleteAllItems()
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error deleting all items: ${e.message}", e)
+            }
+        }
+    }
+
+    fun updateItem(item: CartEntity, newQuantity: Int) {
+        viewModelScope.launch {
+            try {
+                if (newQuantity > 0) {
+                    cartDao.updateItem(item.copy(quantity = newQuantity))
+                }
+                else {
+                    cartDao.deleteItem(item)
+                }
+            } catch (e: Exception) {
+                Log.e("OrderListViewModel", "Error updating item: ${e.message}", e)
+            }
+        }
     }
 
     fun getTotalPrice(): Int {
-        return _itemList.value.sumOf { it.price * it.quantity }
-    }
-
-    fun clearCart() {
-        _itemList.update { emptyList() }
-    }
-
-    fun plusItem(item: OrderItem) {
-        _itemList.update { currentItems ->
-            currentItems.map { orderItem ->
-                if (orderItem.id == item.id && orderItem.quantity < 10) {
-                    orderItem.copy(quantity = orderItem.quantity + 1)
-                } else {
-                    orderItem
-                }
-            }
-        }
-    }
-
-    fun minusItem(item: OrderItem) {
-        _itemList.update { currentItems ->
-            currentItems.map { orderItem ->
-                if (orderItem.id == item.id && orderItem.quantity > 1) {
-                    orderItem.copy(quantity = orderItem.quantity - 1)
-                } else {
-                    orderItem
-                }
-            }.filter { it.quantity > 0 }
-        }
+        return itemList.value.sumOf { it.price * it.quantity }
     }
 }
