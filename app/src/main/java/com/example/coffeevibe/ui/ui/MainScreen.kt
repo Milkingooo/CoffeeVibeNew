@@ -41,7 +41,8 @@ import com.example.coffeevibe.viewmodel.OrderViewModel
 
 @Composable
 fun MainScreen(
-    inFinishOrder: () -> Unit
+    inFinishOrder: () -> Unit,
+    onLogin: () -> Unit,
 ) {
     val context = LocalContext.current
     val passwordDb = CartDatabase.getDatabase(context)
@@ -81,7 +82,7 @@ fun MainScreen(
                     enterTransition = { fadeIn() },
                     exitTransition = { fadeOut() },
                     popEnterTransition = { fadeIn() },
-                    popExitTransition = { fadeOut() }) { AccountScreen({}, {})  }
+                    popExitTransition = { fadeOut() }) { AccountScreen({ onLogin() })  }
 
             }
             BottomNavigationBar(navController = navController)

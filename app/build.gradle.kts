@@ -79,6 +79,7 @@ dependencies {
     implementation(libs.androidx.room.rxjava2)
     implementation(libs.androidx.room.rxjava3)
     implementation(libs.com.google.devtools.ksp.gradle.plugin)
+    implementation(libs.androidx.core.splashscreen)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

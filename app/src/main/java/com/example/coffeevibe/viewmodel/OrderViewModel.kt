@@ -2,6 +2,8 @@ package com.example.coffeevibe.viewmodel
 
 import android.app.Application
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -11,12 +13,14 @@ import com.example.coffeevibe.database.CartEntity
 import com.example.coffeevibe.model.OrderItem
 import com.example.coffeevibe.model.OrderItemUi
 import com.example.coffeevibe.repository.CartRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class OrderViewModel(private val repository: CartRepository) : ViewModel() {
 
@@ -25,6 +29,9 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
 
     private val _itemList = MutableStateFlow<List<CartEntity>>(emptyList())
     val itemList: StateFlow<List<CartEntity>> = _itemList
+
+    private val _total = MutableStateFlow(0)
+    val total: StateFlow<Int> = _total
 
     init {
         loadCartItems()
@@ -35,6 +42,7 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
             try {
                 repository.getAllItems().collect { entities ->
                     _itemList.value = entities
+                    _total.value = entities.sumOf { it.price * it.quantity }
                 }
             } catch (e: Exception) {
                 Log.e("OrderListViewModel", "Error getting cart items: ${e.message}", e)
@@ -97,8 +105,9 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
     fun updateItem(item: CartEntity, newQuantity: Int) {
         viewModelScope.launch {
             try {
-                if (newQuantity > 0) {
+                if (newQuantity in 1..10) {
                     cartDao.updateItem(item.copy(quantity = newQuantity))
+                    loadCartItems()
                 }
                 else {
                     cartDao.deleteItem(item)
@@ -109,7 +118,4 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
         }
     }
 
-    fun getTotalPrice(): Int {
-        return itemList.value.sumOf { it.price * it.quantity }
-    }
 }

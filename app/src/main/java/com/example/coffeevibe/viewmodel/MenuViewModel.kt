@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coffeevibe.database.FirebaseDao
+import com.example.coffeevibe.model.Location
 import com.example.coffeevibe.model.MenuItem
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -24,6 +25,7 @@ class MenuViewModel(val context: Context) : ViewModel() {
 
     private val _dataList = MutableStateFlow<List<MenuItem>>(emptyList())
     val dataList: StateFlow<List<MenuItem>> = _dataList.asStateFlow()
+
 
     init {
         loadData()
@@ -59,5 +61,27 @@ class MenuViewModel(val context: Context) : ViewModel() {
                 Log.e("MyViewModel", "Error loading data", e)
             }
         }
+    }
+
+    fun getLocations(locations: (List<Location>) -> Unit){
+        val loc: MutableList<Location> = mutableListOf()
+
+        viewModelScope.launch {
+            val snapshot = firestore.collection("Location").get().await()
+            snapshot.documents.mapNotNull { item ->
+                try {
+                    loc.add(Location(
+                        id = item.data?.get("Id").toString().toInt(),
+                        address = item.data?.get("Address").toString()
+                    ))
+                }
+                catch (e: Exception) {
+                    Log.e("MyViewModel", "Error loading data", e)
+                    null
+                }
+
+            }
+        }
+        locations(loc)
     }
 }

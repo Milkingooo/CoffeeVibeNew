@@ -23,10 +23,6 @@ class AccountActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AccountScreen(
-                onClose = {
-                    finish()
-                },
-
                 logOut = {
                     startActivity(Intent(this, LoginActivity::class.java))
                 }

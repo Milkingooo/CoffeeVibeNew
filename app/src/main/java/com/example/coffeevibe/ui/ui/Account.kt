@@ -45,7 +45,6 @@ import com.example.coffeevibe.viewmodel.LoginViewModel
 
 @Composable
 fun AccountScreen(
-    onClose: () -> Unit,
     logOut: () -> Unit
 ) {
     val context = LocalContext.current
@@ -128,7 +127,6 @@ fun AccountScreen(
 @Composable
 fun AccountPreview() {
     AccountScreen(
-        onClose = {},
         logOut = {}
     )
 }

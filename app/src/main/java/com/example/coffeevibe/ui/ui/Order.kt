@@ -1,6 +1,7 @@
 package com.example.coffeevibe.ui.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ fun CartScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     val orderItems by orderVm.itemList.collectAsState()
+    val totalPrice by orderVm.total.collectAsState()
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -81,7 +83,7 @@ fun CartScreen(
                         }
 
                         Text(
-                            text = "Итого: ${orderVm.getTotalPrice()} руб.",
+                            text = "Итого: $totalPrice руб.",
                             color = colorScheme.onBackground,
                             fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
                             fontSize = 22.sp,
@@ -147,7 +149,10 @@ fun CartScreen(
                                 orderVm.deleteItem(it)
                             },
                             onPlus = {
-                                orderVm.updateItem(it, it.quantity + 1)
+                                if (it.quantity <= 9) {
+                                    orderVm.updateItem(it, it.quantity + 1)
+                                }
+                                else haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             onMinus = {
                                 if (it.price > 1) {
@@ -217,10 +222,13 @@ fun CartItem(
                 contentScale = ContentScale.Crop,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column {
-                Text(text = name, color = colorScheme.onBackground)
+                Text(text = name,
+                    color = colorScheme.onBackground,
+                    modifier = Modifier.width(150.dp),
+                    )
                 Text(text = "$price руб.", color = colorScheme.onBackground)
             }
 
