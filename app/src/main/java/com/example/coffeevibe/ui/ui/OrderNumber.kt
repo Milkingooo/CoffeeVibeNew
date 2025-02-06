@@ -29,7 +29,6 @@ fun OrderNumber() {
     CoffeeVibeTheme(content = {
         Card(
             modifier = Modifier
-                .padding(16.dp)
                 .fillMaxWidth()
                 .height(116.dp)
                 .background(colorScheme.surface, RoundedCornerShape(16.dp)),

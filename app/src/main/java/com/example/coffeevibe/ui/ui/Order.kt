@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -73,24 +74,7 @@ fun CartScreen(
         Scaffold(
             bottomBar = {
                 BottomAppBar(
-                    actions = {
-                        IconButton(onClick = { orderVm.deleteAllItems() }) {
-                            Icon(
-                                Icons.Filled.Delete,
-                                contentDescription = "Localized description",
-                                tint = colorScheme.onBackground,
-                                modifier = Modifier.size(26.dp).weight(1f)
-                            )
-                        }
-//
-//                        Text(
-//                            text = "Итого: $totalPrice руб.",
-//                            color = colorScheme.onBackground,
-//                            fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-//                            fontSize = 22.sp,
-//                        )
-
-                    },
+                    actions = { },
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
@@ -113,7 +97,7 @@ fun CartScreen(
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(8.dp)
+                                modifier = Modifier.padding(12.dp)
                             ) {
                                 Icon(
                                     Icons.Filled.Payments,
@@ -155,16 +139,30 @@ fun CartScreen(
                     .background(colorScheme.background)
                     .padding(innerPadding)
             ) {
-                Text(
-                    text = "Cart",
-                    color = colorScheme.onBackground,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                    fontSize = 28.sp,
-                    textAlign = TextAlign.Left
-                )
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Cart",
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                        fontSize = 28.sp,
+                        textAlign = TextAlign.Left
+                    )
+
+                    IconButton(onClick = { orderVm.deleteAllItems() }) {
+                        Icon(
+                            Icons.Outlined.Delete,
+                            contentDescription = "Localized description",
+                            tint = colorScheme.onBackground,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
+                }
 
                 LazyColumn(
                     modifier = Modifier

@@ -71,7 +71,7 @@ fun OrderFinishItem(
                 Text(text = name,
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)))
-                Text(text = "$price руб.",
+                Text(text = "${price * quantity}₽",
                     color = colorScheme.onBackground,
                     )
                 Text(

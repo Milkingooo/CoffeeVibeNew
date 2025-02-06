@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Support
 import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -84,16 +85,22 @@ fun AccountScreen(
                     .background(colorScheme.background)
                     .padding(innerPadding)
             ) {
-                Text(
-                    text = "Account",
-                    color = colorScheme.onBackground,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                    fontSize = 28.sp,
-                    textAlign = TextAlign.Left
-                )
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Account",
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                        fontSize = 28.sp,
+                        textAlign = TextAlign.Left
+                    )
+
+                }
 
                 Text(
                     text = name,

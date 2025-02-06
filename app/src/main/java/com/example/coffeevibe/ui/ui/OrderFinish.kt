@@ -169,7 +169,7 @@ fun OrderFinish(
 
                 Button(
                     onClick = {
-                        if(placeSelected != 0) {
+                        if(placeSelected != 0 && placeSelected != 0) {
                             orderFinishVm.createOrder(
                                 idUser = AuthUtils.getUserId()!!,
                                 idAddress = placeSelected,
@@ -181,7 +181,7 @@ fun OrderFinish(
                             onBackPressed()
                         }
                     },
-                    colors = if (isUserAuth) {
+                    colors = if (isUserAuth && placeSelected != 0) {
                         ButtonDefaults.buttonColors(
                             containerColor = colorScheme.primary,
                             contentColor = colorScheme.onBackground

@@ -1,8 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,11 +12,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +41,8 @@ fun MinimalDialog(onDismissRequest: () -> Unit,
                   name: String
 ) {
     CoffeeVibeTheme(content = {
-        Dialog(onDismissRequest = { onDismissRequest() }) {
+        Dialog(onDismissRequest = { onDismissRequest() }
+        ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
