@@ -256,7 +256,7 @@ fun DefaultPreview() {
     val passwordDb = CartDatabase.getDatabase(context)
     val passwordDao = passwordDb.cartDao()
     val repository = CartRepository(passwordDao)
-    val orderViewModel = OrderViewModel(repository)
+    val orderViewModel = OrderViewModel(repository, context)
     MenuScreen(orderVm = orderViewModel, menuViewModel = MenuViewModel(context))
 }
 
@@ -299,17 +299,17 @@ fun ListItem(
 
                 AsyncImage(
                     model =
-                        ImageRequest.Builder(LocalContext.current).data(data = image)
-                            .apply(block = fun ImageRequest.Builder.() {
-                                crossfade(true) // Плавный переход при загрузке нового изображения
-                            }).build(),
+                    ImageRequest.Builder(LocalContext.current).data(data = image)
+                        .apply(block = fun ImageRequest.Builder.() {
+                            crossfade(true) // Плавный переход при загрузке нового изображения
+                        }).build(),
                     contentDescription = null, // Описание для доступности
                     modifier = Modifier
                         .width(130.dp)
                         .height(130.dp)
                         .clip(shape = RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop,
-                    )
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -331,15 +331,19 @@ fun ListItem(
 
                 Button(
                     onClick = {
-                        if(isSelected) onDelete() else onAdd()
+                        if (isSelected) {
+                            onDelete()
+                        } else {
+                            onAdd()
+                        }
                     },
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Text(
-                        text = if(isSelected) "Из корзины" else "В корзину",
+                        text = if (isSelected) "Из корзины" else "В корзину",
                         color = colorScheme.onBackground,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-                        )
+                    )
                 }
             }
         }

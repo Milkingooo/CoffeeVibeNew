@@ -30,7 +30,7 @@ class OrderActivity : ComponentActivity() {
             val passwordDb = CartDatabase.getDatabase(context)
             val passwordDao = passwordDb.cartDao()
             val repository = CartRepository(passwordDao)
-            val orderViewModel = OrderViewModel(repository)
+            val orderViewModel = OrderViewModel(repository, context)
             val orderFVm = OrderFinishViewModel()
             val menuVm = MenuViewModel(context)
             OrderFinish({

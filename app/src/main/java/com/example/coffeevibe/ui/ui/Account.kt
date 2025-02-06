@@ -1,6 +1,9 @@
 package com.example.coffeevibe.ui.ui
 
+import android.graphics.drawable.Icon
+import android.media.Image
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Support
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,7 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -76,25 +90,31 @@ fun AccountScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                    fontSize = 36.sp,
-                    textAlign = TextAlign.Center
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                    fontSize = 28.sp,
+                    textAlign = TextAlign.Left
                 )
 
                 Text(
                     text = name,
                     color = colorScheme.onBackground,
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                     fontSize = 28.sp,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Left
                 )
 
                 Spacer(modifier = Modifier.size(26.dp))
 
-                SettingsSubCategory("Account settings") {}
-                SettingsSubCategory("Support") {}
+                SettingsSubCategory("Account settings",
+                    icon = Icons.Filled.AccountCircle,
+                    action = {})
+                SettingsSubCategory("Support",
+                    icon = Icons.Filled.SupportAgent,
+                    //BitmapPainter(ImageBitmap.imageResource(R.drawable.settings_48)),
+                    action = {})
 
                 Button(
                     onClick = {
@@ -102,11 +122,11 @@ fun AccountScreen(
                         loginVm.logout()
                     },
                     colors = ButtonDefaults.buttonColors(colorScheme.primary),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .height(50.dp)
+                        .height(45.dp)
                 ) {
                     Text(
                         text = if(isUserLoggedIn) "Log out" else "Log in",
@@ -132,7 +152,10 @@ fun AccountPreview() {
 }
 
 @Composable
-fun SettingsSubCategory(name: String, action: () -> Unit) {
+fun SettingsSubCategory(name: String,
+                        action: () -> Unit,
+                        icon: ImageVector
+) {
     CoffeeVibeTheme(content = {
         val colorScheme = MaterialTheme.colorScheme
 
@@ -142,27 +165,30 @@ fun SettingsSubCategory(name: String, action: () -> Unit) {
                 .clickable {
                     action()
                 }
-                .padding(start = 16.dp, end = 16.dp),
+                .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Start
         ) {
+//            Icon(
+//                icon,
+//                contentDescription = "Reset",
+//                tint = colorScheme.onBackground,
+//                modifier = Modifier.size(35.dp)
+//            )
+            Icon(
+                icon,
+                contentDescription = "Reset1",
+                modifier = Modifier.size(35.dp),
+                tint = colorScheme.onBackground
+            )
+            Spacer(modifier = Modifier.size(16.dp))
             Text(
                 text = name,
                 color = colorScheme.onBackground,
                 textAlign = TextAlign.Left,
-                fontSize = 22.sp,
-                fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
+                fontSize = 20.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
             )
-
-            Icon(
-                Icons.AutoMirrored.Filled.ArrowForwardIos,
-                contentDescription = "Reset",
-                tint = colorScheme.onBackground,
-                modifier = Modifier.size(24.dp, 24.dp)
-            )
-
         }
-
-        Spacer(modifier = Modifier.size(10.dp))
     })
 }

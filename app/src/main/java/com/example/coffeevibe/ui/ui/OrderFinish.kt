@@ -88,8 +88,7 @@ fun OrderFinish(
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                        .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -193,7 +192,7 @@ fun OrderFinish(
                             contentColor = colorScheme.onBackground
                         )
                     },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
@@ -217,7 +216,7 @@ fun OrderFinishPreview() {
     val passwordDb = CartDatabase.getDatabase(context)
     val passwordDao = passwordDb.cartDao()
     val repository = CartRepository(passwordDao)
-    val orderViewModel = OrderViewModel(repository)
+    val orderViewModel = OrderViewModel(repository, context)
     val menuVm = MenuViewModel(context)
     val orderFinVm = OrderFinishViewModel()
     OrderFinish({}, orderViewModel, menuVm = menuVm, orderFinishVm = orderFinVm)
@@ -236,7 +235,7 @@ fun OrderPlaced(
             .fillMaxWidth()
             .animateContentSize()
             .height(if (expanded) 250.dp else 55.dp)
-            .clip(RoundedCornerShape(22.dp)),
+            .clip(RoundedCornerShape(10.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.LightGray)
     ) {
         Column(

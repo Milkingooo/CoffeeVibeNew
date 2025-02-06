@@ -67,6 +67,7 @@ fun CartScreen(
     val haptic = LocalHapticFeedback.current
     val orderItems by orderVm.itemList.collectAsState()
     val totalPrice by orderVm.total.collectAsState()
+    val context = LocalContext.current
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -78,38 +79,70 @@ fun CartScreen(
                                 Icons.Filled.Delete,
                                 contentDescription = "Localized description",
                                 tint = colorScheme.onBackground,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(26.dp).weight(1f)
                             )
                         }
-
-                        Text(
-                            text = "Итого: $totalPrice руб.",
-                            color = colorScheme.onBackground,
-                            fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                            fontSize = 22.sp,
-                        )
+//
+//                        Text(
+//                            text = "Итого: $totalPrice руб.",
+//                            color = colorScheme.onBackground,
+//                            fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
+//                            fontSize = 22.sp,
+//                        )
 
                     },
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onCreateOrder()
+                                if(!orderVm.isCartIsEmpty()) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onCreateOrder()
+                                }
+                                else {
+                                    Toast.makeText(context, "Корзина пуста", Toast.LENGTH_SHORT).show()
+                                }
                             },
-                            containerColor = colorScheme.primary,
+                            containerColor = if(!orderVm.isCartIsEmpty()) colorScheme.primary else colorScheme.surface,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                            modifier = Modifier.width(150.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+
                         ) {
-                            Icon(
-                                Icons.Filled.Payments,
-                                "Localized description",
-                                tint = colorScheme.onBackground
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.Payments,
+                                    "Localized description",
+                                    tint = colorScheme.onBackground
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "К оформлению",
+                                    color = colorScheme.onBackground,
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
+                                    fontSize = 16.sp,
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "$totalPrice₽",
+                                    color = colorScheme.onBackground,
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
+                                    fontSize = 16.sp,
+                                )
+                            }
                         }
                     },
                     modifier = Modifier
                         .background(color = colorScheme.background)
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                        .height(85.dp)
+                        .padding(start = 12.dp),
+                    containerColor = colorScheme.background,
                 )
             },
             modifier = Modifier
@@ -128,7 +161,7 @@ fun CartScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                     fontSize = 28.sp,
                     textAlign = TextAlign.Left
                 )
@@ -176,7 +209,7 @@ fun CartPreview() {
     val passwordDb = CartDatabase.getDatabase(context)
     val passwordDao = passwordDb.cartDao()
     val repository = CartRepository(passwordDao)
-    val orderViewModel = OrderViewModel(repository)
+    val orderViewModel = OrderViewModel(repository, context)
     CartScreen(
         onCreateOrder = {},
         orderVm = orderViewModel

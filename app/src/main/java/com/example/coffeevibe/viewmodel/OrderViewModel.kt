@@ -1,6 +1,7 @@
 package com.example.coffeevibe.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
@@ -22,8 +23,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class OrderViewModel(private val repository: CartRepository) : ViewModel() {
+class OrderViewModel(private val repository: CartRepository, context: Context) : ViewModel() {
 
+    private val menuVm = MenuViewModel(context)
     private val db = CartDatabase.getDatabase(Application())
     private val cartDao = db.cartDao()
 
@@ -61,6 +63,7 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
                     image = image
                 )
                 repository.addItem(newItem)
+                menuVm.loadData()
             } catch (e: Exception) {
                 Log.e("OrderListViewModel", "Error adding password: ${e.message}", e)
             }
@@ -71,10 +74,15 @@ class OrderViewModel(private val repository: CartRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 cartDao.deleteItem(item)
+                menuVm.loadData()
             } catch (e: Exception) {
                 Log.e("OrderListViewModel", "Error deleting item: ${e.message}", e)
             }
         }
+    }
+
+    fun isCartIsEmpty(): Boolean {
+        return itemList.value.isEmpty()
     }
 
     fun deleteItemById(id: Int) {

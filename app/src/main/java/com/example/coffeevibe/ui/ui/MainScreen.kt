@@ -48,7 +48,7 @@ fun MainScreen(
     val passwordDb = CartDatabase.getDatabase(context)
     val passwordDao = passwordDb.cartDao()
     val repository = CartRepository(passwordDao)
-    val orderViewModel = OrderViewModel(repository)
+    val orderViewModel = OrderViewModel(repository, context)
     val navController = rememberNavController()
 
     CoffeeVibeTheme(content = {
