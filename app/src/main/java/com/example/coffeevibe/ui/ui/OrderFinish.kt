@@ -233,6 +233,9 @@ fun OrderPlaced(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                expanded = !expanded
+            }
             .animateContentSize()
             .height(if (expanded) 250.dp else 55.dp)
             .clip(RoundedCornerShape(10.dp)),
@@ -260,10 +263,6 @@ fun OrderPlaced(
                     Icons.Filled.ArrowDropDown,
                     contentDescription = "Login",
                     tint = colorScheme.onBackground,
-                    modifier = Modifier
-                        .clickable {
-                            expanded = !expanded
-                        }
                 )
             }
             if (expanded) {

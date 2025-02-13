@@ -58,6 +58,7 @@ import com.example.coffeevibe.R
 import com.example.coffeevibe.database.CartDatabase
 import com.example.coffeevibe.repository.CartRepository
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.utils.AuthUtils
 import com.example.coffeevibe.viewmodel.OrderViewModel
 
 @Composable
@@ -78,15 +79,18 @@ fun CartScreen(
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                if(!orderVm.isCartIsEmpty()) {
+                                if(!orderVm.isCartIsEmpty() && AuthUtils.isUserAuth()) {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     onCreateOrder()
+                                }
+                                else if(!AuthUtils.isUserAuth()) {
+                                    Toast.makeText(context, "Пожалуйста авторизируйтесь", Toast.LENGTH_SHORT).show()
                                 }
                                 else {
                                     Toast.makeText(context, "Корзина пуста", Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            containerColor = if(!orderVm.isCartIsEmpty()) colorScheme.primary else colorScheme.surface,
+                            containerColor = if(!orderVm.isCartIsEmpty() && AuthUtils.isUserAuth()) colorScheme.primary else colorScheme.surface,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             modifier = Modifier
                                 .fillMaxWidth()

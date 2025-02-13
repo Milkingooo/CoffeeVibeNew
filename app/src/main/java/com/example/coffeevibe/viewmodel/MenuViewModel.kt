@@ -7,9 +7,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.coffeevibe.database.FirebaseDao
 import com.example.coffeevibe.model.Location
 import com.example.coffeevibe.model.MenuItem
+import com.example.coffeevibe.utils.AuthUtils
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +28,16 @@ class MenuViewModel(val context: Context) : ViewModel() {
     private val _dataList = MutableStateFlow<List<MenuItem>>(emptyList())
     val dataList: StateFlow<List<MenuItem>> = _dataList.asStateFlow()
 
+    private val _isOrderHas = MutableStateFlow(false)
+    val isOrderHas: StateFlow<Boolean> = _isOrderHas
+
+    private val _orderNP = MutableStateFlow("0#0")
+    val orderNP: StateFlow<String> = _orderNP
 
     init {
         loadData()
+        isUserSingleOrder()
+        getOrderNumAndPrice()
     }
 
     fun loadData() {
@@ -46,8 +55,7 @@ class MenuViewModel(val context: Context) : ViewModel() {
                             image = item.data?.get("Image").toString(),
                             status = item.data?.get("Status").toString(),
                         )
-                    }
-                    catch (e: Exception) {
+                    } catch (e: Exception) {
                         Log.e("MyViewModel", "Error loading data", e)
                         null
                     }
@@ -63,19 +71,71 @@ class MenuViewModel(val context: Context) : ViewModel() {
         }
     }
 
-    fun getLocations(locations: (List<Location>) -> Unit){
+    private fun getOrderNumAndPrice() {
+        viewModelScope.launch {
+            val snapshot = firestore
+                .collection("Order")
+                .whereEqualTo("IdClient", AuthUtils.getUserId())
+                .get()
+                .await()
+            snapshot.documents.mapNotNull { item ->
+                try {
+                    when {
+                        item.data?.get("Status").toString() == "Создан" -> {
+                            withContext(Dispatchers.IO) {
+                                _orderNP.value =
+                                    "${item.id}#${item.data?.get("TotalPrice").toString()}"
+                            }
+                        }
+
+                        else -> {
+                            _orderNP.value = "0#0"
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("MyViewModel", "Error loading data", e)
+                    null
+                }
+            }
+        }
+    }
+
+    private fun isUserSingleOrder() {
+        viewModelScope.launch {
+            try {
+                val snapshot = firestore
+                    .collection("Order")
+                    .whereEqualTo("IdClient", AuthUtils.getUserId())
+                    .get()
+                    .await()
+
+                val ordersCount = snapshot.documents.count { document ->
+                    document["Status"]?.toString()?.trim() == "Создан"
+                }
+
+                _isOrderHas.value = ordersCount > 0
+            } catch (e: Exception) {
+                Log.e("MyViewModel", "Error loading data", e)
+                _isOrderHas.value = false
+            }
+        }
+    }
+
+    fun getLocations(locations: (List<Location>) -> Unit) {
         val loc: MutableList<Location> = mutableListOf()
 
         viewModelScope.launch {
             val snapshot = firestore.collection("Location").get().await()
             snapshot.documents.mapNotNull { item ->
                 try {
-                    loc.add(Location(
-                        id = item.data?.get("Id").toString().toInt(),
-                        address = item.data?.get("Address").toString()
-                    ))
-                }
-                catch (e: Exception) {
+                    loc.add(
+                        Location(
+                            id = item.data?.get("Id").toString().toInt(),
+                            address = item.data?.get("Address").toString()
+                        )
+                    )
+                } catch (e: Exception) {
                     Log.e("MyViewModel", "Error loading data", e)
                     null
                 }

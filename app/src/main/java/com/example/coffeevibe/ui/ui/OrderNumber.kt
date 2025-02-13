@@ -25,7 +25,8 @@ import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 
 @Composable
-fun OrderNumber() {
+fun OrderNumber(number: String,
+                price: String) {
     CoffeeVibeTheme(content = {
         Card(
             modifier = Modifier
@@ -43,14 +44,14 @@ fun OrderNumber() {
             ) {
                 Column{
                     Text(
-                        text = "Номер заказа: 52",
+                        text = "Номер заказа: $number",
                         color = colorScheme.onBackground,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                         fontSize = 26.sp
                     )
                 }
                 Text(
-                    text = "К оплате: 150 руб.",
+                    text = "К оплате: $price₽",
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                     fontSize = 26.sp
@@ -64,5 +65,5 @@ fun OrderNumber() {
 @Preview(showBackground = true)
 @Composable
 fun OrderNumPreview() {
-    OrderNumber()
+    OrderNumber("52", "42")
 }

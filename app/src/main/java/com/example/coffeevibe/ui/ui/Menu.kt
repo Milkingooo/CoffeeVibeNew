@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +72,7 @@ import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
 import com.example.coffeevibe.viewmodel.OrderViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MenuScreen(
     orderVm: OrderViewModel,
@@ -87,8 +89,10 @@ fun MenuScreen(
     var selectedName by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyGridState()
     val scrollState = rememberScrollState()
+    val isOrderHas by menuViewModel.isOrderHas.collectAsState()
+    val numAndPrice by menuViewModel.orderNP.collectAsState()
 
-
+    Log.d("numAndPrice", numAndPrice)
     CoffeeVibeTheme(content = {
         Scaffold(
             modifier = Modifier.background(colorScheme.background),
@@ -192,39 +196,59 @@ fun MenuScreen(
                             }
                         }
                         if (filteredGoods.isNotEmpty()) {
-                            item(span = { GridItemSpan(2) }) {
-                                OrderNumber()
+                            if (isOrderHas) {
+                                item(span = { GridItemSpan(2) }) {
+                                    val np = numAndPrice.split("#")
+                                    OrderNumber(
+                                        number = np[0],
+                                        price = np[1]
+                                    )
+                                }
                             }
+                            val categories = goods.groupBy { it.category }
 
-                            items(filteredGoods.size, key = { filteredGoods[it].id }) {
-                                ListItem(
-                                    name = filteredGoods[it].name,
-                                    price = filteredGoods[it].price,
-                                    image = filteredGoods[it].image,
-                                    onInfo = {
-                                        showInfo = true
-                                        selectedDescription = filteredGoods[it].description
-                                        selectedImage = filteredGoods[it].image
-                                        selectedName = filteredGoods[it].name
-                                    },
-                                    onAdd = {
-                                        orderVm.addItem(
-                                            id = filteredGoods[it].id,
-                                            name = filteredGoods[it].name,
-                                            price = filteredGoods[it].price,
-                                            image = filteredGoods[it].image,
-                                            quantity = 1
-                                        )
-                                    },
-                                    onDelete = {
-                                        orderVm.deleteItemById(filteredGoods[it].id)
-                                    },
-                                    isSelected = orderVm.isItemInCart(filteredGoods[it].id),
-                                )
-                                Log.d(
-                                    "ListItem",
-                                    goods[it].name + goods[it].price + goods[it].image
-                                )
+                            categories.forEach { (category, goods) ->
+
+                                item(span = { GridItemSpan(2) }) {
+                                    Text(
+                                        text = category,
+                                        color = colorScheme.onBackground,
+                                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                                        fontSize = 28.sp,
+                                        textAlign = TextAlign.Left,
+                                    )
+                                }
+
+                                items(goods.size, key = { goods[it].id }) {
+                                    ListItem(
+                                        name = goods[it].name,
+                                        price = goods[it].price,
+                                        image = goods[it].image,
+                                        onInfo = {
+                                            showInfo = true
+                                            selectedDescription = goods[it].description
+                                            selectedImage = goods[it].image
+                                            selectedName = goods[it].name
+                                        },
+                                        onAdd = {
+                                            orderVm.addItem(
+                                                id = goods[it].id,
+                                                name = goods[it].name,
+                                                price = goods[it].price,
+                                                image = goods[it].image,
+                                                quantity = 1
+                                            )
+                                        },
+                                        onDelete = {
+                                            orderVm.deleteItemById(goods[it].id)
+                                        },
+                                        isSelected = orderVm.isItemInCart(goods[it].id),
+                                    )
+                                    Log.d(
+                                        "ListItem",
+                                        goods[it].name + goods[it].price + goods[it].image
+                                    )
+                                }
                             }
 
                         }
