@@ -92,6 +92,8 @@ fun MenuScreen(
     val isOrderHas by menuViewModel.isOrderHas.collectAsState()
     val numAndPrice by menuViewModel.orderNP.collectAsState()
 
+    //https://www.figma.com/design/YFIQ0o0c2VozfcVD5PQAxN/Matule-with-Style-guide-ORIG-(Main)?node-id=8103-4024&p=f&t=aggLsa9vABWY53e0-0
+
     Log.d("numAndPrice", numAndPrice)
     CoffeeVibeTheme(content = {
         Scaffold(
