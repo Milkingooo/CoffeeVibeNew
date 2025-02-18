@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -73,6 +75,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.coffeevibe.R
 import com.example.coffeevibe.database.CartDatabase
@@ -335,17 +338,30 @@ fun ListItem(
                     .padding(16.dp),
             ) {
                 //CachedImage(image)
-                AsyncImage(
-                    model =
-                    ImageRequest.Builder(LocalContext.current).data(data = image)
-                        .apply(block = fun ImageRequest.Builder.() {
-                            crossfade(true) // Плавный переход при загрузке нового изображения
-                        }).build(),
-                    contentDescription = null, // Описание для доступности
+//                AsyncImage(
+//                    model =
+//                    ImageRequest.Builder(LocalContext.current).data(data = image)
+//                        .apply(block = fun ImageRequest.Builder.() {
+//                            crossfade(true) // Плавный переход при загрузке нового изображения
+//                        }).build(),
+//                    contentDescription = null, // Описание для доступности
+//                    modifier = Modifier
+//                        .width(130.dp)
+//                        .height(130.dp)
+//                        .clip(shape = RoundedCornerShape(20.dp)),
+//                    contentScale = ContentScale.Crop,
+//                )
+
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
+                            crossfade(true)
+                        }).build()
+                    ),
+                    contentDescription = null,
                     modifier = Modifier
-                        .width(130.dp)
-                        .height(130.dp)
-                        .clip(shape = RoundedCornerShape(20.dp)),
+                        .size(130.dp)
+                        .clip(shape = RoundedCornerShape(18.dp)),
                     contentScale = ContentScale.Crop,
                 )
 
