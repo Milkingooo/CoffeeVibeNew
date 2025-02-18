@@ -249,7 +249,8 @@ fun MenuScreen(
                                         price = item.price,
                                         image = item.image,
                                         onInfo = {
-                                            showInfo = true
+                                            //showInfo = true
+                                            showSheet = true
                                             selectedDescription = item.description
                                             selectedImage = item.image
                                             selectedName = item.name
@@ -294,7 +295,11 @@ fun MenuScreen(
                 }
             }
             if(showSheet){
-                AboutItemSheet(showSheet){
+                AboutItemSheet(showSheet,
+                    description = selectedDescription,
+                    image = selectedImage,
+                    name = selectedName
+                    ){
                     showSheet = it
                 }
             }
