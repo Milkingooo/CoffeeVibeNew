@@ -1,19 +1,13 @@
 package com.example.coffeevibe.viewmodel
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.coffeevibe.database.CartEntity
-//import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import java.time.Instant
 import java.sql.Timestamp
+import java.time.Instant
 import kotlin.random.Random
 
 @SuppressLint("SimpleDateFormat")
@@ -43,6 +37,7 @@ class OrderFinishViewModel : ViewModel() {
                 )
             )
                 .addOnSuccessListener {
+                    Log.d("SuccessCreateOrder", idPickupTime.toString())
                     items.forEach {
                         val idOrder2 = Random.nextInt(0, 9999).toString()
                         firestore.collection("OrderItem").document(idOrder2).set(

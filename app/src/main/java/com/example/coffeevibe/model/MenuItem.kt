@@ -1,8 +1,8 @@
 package com.example.coffeevibe.model
 
-import android.os.Parcel
-import android.os.Parcelable
+import androidx.compose.runtime.Stable
 
+@Stable
 data class MenuItem(
     val id: Int = 0,
     val name: String = "",

@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -42,6 +43,7 @@ class MenuViewModel(val context: Context) : ViewModel() {
 
     init {
         loadData()
+        isUserSingleOrder()
         getOrderNumAndPrice()
     }
 
@@ -67,11 +69,34 @@ class MenuViewModel(val context: Context) : ViewModel() {
                 }
                 Log.d("MyViewModel", "Loaded data: $items")
                 withContext(Dispatchers.Main) {
-                    _dataList.value = items
+                    if (!_dataList.value.containsAll(items) || _dataList.value.size != items.size) {
+                        _dataList.value = items
+                    }
                 }
                 Log.d("MyViewModel", "Loaded data: $items")
             } catch (e: Exception) {
                 Log.e("MyViewModel", "Error loading data", e)
+            }
+        }
+    }
+
+    private fun isUserSingleOrder() {
+        viewModelScope.launch {
+            try {
+                val snapshot = firestore
+                    .collection("Order")
+                    .whereEqualTo("IdClient", AuthUtils.getUserId())
+                    .get()
+                    .await()
+
+                val ordersCount = snapshot.documents.count { document ->
+                    document["Status"]?.toString()?.trim() == "Создан"
+                }
+
+                _isOrderHas.value = ordersCount > 0
+            } catch (e: Exception) {
+                Log.e("MyViewModel", "Error loading data", e)
+                _isOrderHas.value = false
             }
         }
     }

@@ -79,7 +79,7 @@ fun CartScreen(
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                if(!orderVm.isCartIsEmpty() && AuthUtils.isUserAuth()) {
+                                if(orderItems.isNotEmpty() && AuthUtils.isUserAuth()) {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     onCreateOrder()
                                 }
@@ -90,7 +90,7 @@ fun CartScreen(
                                     Toast.makeText(context, "Корзина пуста", Toast.LENGTH_SHORT).show()
                                 }
                             },
-                            containerColor = if(!orderVm.isCartIsEmpty() && AuthUtils.isUserAuth()) colorScheme.primary else colorScheme.surface,
+                            containerColor = if(orderItems.isNotEmpty() && AuthUtils.isUserAuth()) colorScheme.primary else colorScheme.surface,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -106,20 +106,20 @@ fun CartScreen(
                                 Icon(
                                     Icons.Filled.Payments,
                                     "Localized description",
-                                    tint = colorScheme.onBackground
+                                    tint = colorScheme.background
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "К оформлению",
-                                    color = colorScheme.onBackground,
-                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
+                                    color = colorScheme.background,
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                                     fontSize = 16.sp,
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "$totalPrice₽",
-                                    color = colorScheme.onBackground,
-                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
+                                    color = colorScheme.background,
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                                     fontSize = 16.sp,
                                 )
                             }

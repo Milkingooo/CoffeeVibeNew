@@ -155,42 +155,37 @@ fun OrderFinish(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        LazyRow(
+                        Row(
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
                         )
                         {
-                            items(1) {
-                                FilterChipItem(
-                                    "Сейчас"
-                                ){
-                                    pickupTime = it
-                                }
 
-                                Spacer(modifier = Modifier.width(4.dp))
+                            FilterChipItem(
+                                "Сейчас",
+                                selectedItem = pickupTime == 0,
+                                selectedTime = { num -> pickupTime = num }
+                            )
 
-                                FilterChipItem(
-                                    "15 минут"
-                                ){
-                                    pickupTime = it
-                                }
+                            FilterChipItem(
+                                "15 минут",
+                                selectedItem = pickupTime == 1,
+                                selectedTime = { num -> pickupTime = num }
+                            )
 
-                                Spacer(modifier = Modifier.width(4.dp))
+                            FilterChipItem(
+                                "30 минут",
+                                selectedItem = pickupTime == 2,
+                                selectedTime = { num -> pickupTime = num }
+                            )
 
-                                FilterChipItem(
-                                    "30 минут"
-                                ){
-                                    pickupTime = it
-                                }
+                            FilterChipItem(
+                                "1 час",
+                                selectedItem = pickupTime == 3,
+                                selectedTime = { num -> pickupTime = num }
+                            )
 
-                                Spacer(modifier = Modifier.width(4.dp))
-
-                                FilterChipItem(
-                                    "1 час"
-                                ){
-                                    pickupTime = it
-                                }
-                            }
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -229,13 +224,13 @@ fun OrderFinish(
 
                         Button(
                             onClick = {
-                                if (placeSelected != 0 && placeSelected != 0) {
+                                if (placeSelected != 0) {
                                     orderFinishVm.createOrder(
                                         idUser = AuthUtils.getUserId()!!,
                                         idAddress = placeSelected,
                                         totalPrice = totalPrice,
                                         items = items,
-                                        idPickupTime = 0
+                                        idPickupTime = pickupTime
                                     )
                                     Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT)
                                         .show()
@@ -277,30 +272,39 @@ fun OrderFinish(
     })
 }
 
+
+
 @Composable
 fun FilterChipItem(
     name: String,
     selectedTime: (Int) -> Unit,
+    selectedItem: Boolean,
 ) {
-    var selected by remember { mutableStateOf(false) }
-    when (name) {
-        "Сейчас" -> selectedTime(0)
-        "15 минут" -> selectedTime(1)
-        "30 минут" -> selectedTime(2)
-        "1 час" -> selectedTime(3)
-    }
-
-
     FilterChip(
-        onClick = { selected = !selected },
+        onClick = {
+            when (name) {
+                "Сейчас" -> selectedTime(0)
+                "15 минут" -> selectedTime(1)
+                "30 минут" -> selectedTime(2)
+                "1 час" -> selectedTime(3)
+            }
+        },
         label = {
-            Text(name,
+            Text(
+                name,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                color = if (selected) colorScheme.primary else colorScheme.onBackground,
+                color = colorScheme.onBackground,
             )
         },
-        selected = selected,
-        leadingIcon = if (selected) {
+        colors = if (selectedItem) {
+            FilterChipDefaults.filterChipColors(
+                selectedContainerColor = colorScheme.surface
+            )
+        } else FilterChipDefaults.filterChipColors(
+
+        ),
+        selected = selectedItem,
+        leadingIcon = if (selectedItem) {
             {
                 Icon(
                     imageVector = Icons.Filled.Done,

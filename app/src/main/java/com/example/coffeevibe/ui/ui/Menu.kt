@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -96,14 +97,10 @@ fun MenuScreen(
     var selectedDescription by rememberSaveable { mutableStateOf("") }
     var selectedImage by rememberSaveable { mutableStateOf("") }
     var selectedName by rememberSaveable { mutableStateOf("") }
-    val listState = rememberLazyGridState()
+    val listState2 = rememberLazyGridState()
     val isOrderHas by menuViewModel.isOrderHas.collectAsState()
     val numAndPrice by menuViewModel.orderNP.collectAsState()
     val cartItems by orderVm.itemList.collectAsState()
-
-    LaunchedEffect(Unit) {
-        menuViewModel.loadData()
-    }
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -197,7 +194,7 @@ fun MenuScreen(
                             .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        state = listState,
+                        state = listState2,
                     ) {
                         val filteredGoods = if (searchQuery.isBlank()) {
                             goods
@@ -216,7 +213,7 @@ fun MenuScreen(
                                         items(numAndPrice.size) {
                                             OrderNumber(
                                                 number = numAndPrice[it].number,
-                                                price = numAndPrice[it].price.toString().toInt(),
+                                                price = numAndPrice[it].price,
                                                 pickupTime = numAndPrice[it].pickupTime,
                                             )
 
@@ -238,36 +235,32 @@ fun MenuScreen(
                                     )
                                 }
 
-                                items(filteredGoods.size, key = { filteredGoods[it].id }) {
+                                items(filteredGoods, key = { it.id }) { item ->
                                     ListItem(
-                                        name = filteredGoods[it].name,
-                                        price = filteredGoods[it].price,
-                                        image = filteredGoods[it].image,
+                                        name = item.name,
+                                        price = item.price,
+                                        image = item.image,
                                         onInfo = {
                                             showInfo = true
-                                            selectedDescription = filteredGoods[it].description
-                                            selectedImage = filteredGoods[it].image
-                                            selectedName = filteredGoods[it].name
+                                            selectedDescription = item.description
+                                            selectedImage = item.image
+                                            selectedName = item.name
                                         },
                                         onAdd = {
                                             orderVm.addItem(
-                                                id = filteredGoods[it].id,
-                                                name = filteredGoods[it].name,
-                                                price = filteredGoods[it].price,
-                                                image = filteredGoods[it].image,
+                                                id = item.id,
+                                                name = item.name,
+                                                price = item.price,
+                                                image = item.image,
                                                 quantity = 1
                                             )
                                         },
                                         onDelete = {
-                                            orderVm.deleteItemById(filteredGoods[it].id)
+                                            orderVm.deleteItemById(item.id)
                                         },
                                         isSelected = cartItems.any { cartItem ->
-                                            cartItem.idItem == filteredGoods[it].id
+                                            cartItem.idItem == item.id
                                         },
-                                    )
-                                    Log.d(
-                                        "ListItem",
-                                        goods[it].name + goods[it].price + goods[it].image
                                     )
                                 }
                             }
