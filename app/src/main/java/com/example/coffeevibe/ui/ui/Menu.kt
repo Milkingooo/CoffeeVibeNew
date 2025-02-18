@@ -101,6 +101,7 @@ fun MenuScreen(
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var isSearching by rememberSaveable { mutableStateOf(false) }
     var showInfo by rememberSaveable { mutableStateOf(false) }
+    var showSheet by remember { mutableStateOf(false) }
     var selectedDescription by rememberSaveable { mutableStateOf("") }
     var selectedImage by rememberSaveable { mutableStateOf("") }
     var selectedName by rememberSaveable { mutableStateOf("") }
@@ -290,6 +291,11 @@ fun MenuScreen(
                             name = selectedName
                         )
                     }
+                }
+            }
+            if(showSheet){
+                AboutItemSheet(showSheet){
+                    showSheet = it
                 }
             }
         }
