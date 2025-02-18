@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,10 +31,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +48,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -62,6 +70,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.coffeevibe.R
 import com.example.coffeevibe.database.CartDatabase
@@ -72,11 +82,10 @@ import com.example.coffeevibe.utils.NetworkUtils
 import com.example.coffeevibe.viewmodel.MenuViewModel
 import com.example.coffeevibe.viewmodel.OrderViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MenuScreen(
     orderVm: OrderViewModel,
-    menuViewModel: MenuViewModel
+    menuViewModel: MenuViewModel,
 ) {
     val context = LocalContext.current
     val networkAvailable by NetworkUtils.isNetworkAvailable(context).collectAsState(initial = true)
@@ -88,11 +97,14 @@ fun MenuScreen(
     var selectedImage by rememberSaveable { mutableStateOf("") }
     var selectedName by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyGridState()
-    val scrollState = rememberScrollState()
     val isOrderHas by menuViewModel.isOrderHas.collectAsState()
     val numAndPrice by menuViewModel.orderNP.collectAsState()
+    val cartItems by orderVm.itemList.collectAsState()
 
-    Log.d("numAndPrice", numAndPrice)
+    LaunchedEffect(Unit) {
+        menuViewModel.loadData()
+    }
+
     CoffeeVibeTheme(content = {
         Scaffold(
             modifier = Modifier.background(colorScheme.background),
@@ -106,7 +118,6 @@ fun MenuScreen(
                         .fillMaxSize()
                         .background(colorScheme.background)
                         .padding(innerPadding)
-                        .verticalScroll(scrollState)
                 ) {
                     Row(
                         modifier = Modifier
@@ -198,16 +209,24 @@ fun MenuScreen(
                         if (filteredGoods.isNotEmpty()) {
                             if (isOrderHas) {
                                 item(span = { GridItemSpan(2) }) {
-                                    val np = numAndPrice.split("#")
-                                    OrderNumber(
-                                        number = np[0],
-                                        price = np[1]
-                                    )
+                                    LazyRow(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                    ){
+                                        items(numAndPrice.size) {
+                                            OrderNumber(
+                                                number = numAndPrice[it].number,
+                                                price = numAndPrice[it].price.toString().toInt(),
+                                                pickupTime = numAndPrice[it].pickupTime,
+                                            )
+
+                                        }
+                                    }
                                 }
                             }
-                            val categories = goods.groupBy { it.category }
+                            val categories = filteredGoods.groupBy { it.category }
 
-                            categories.forEach { (category, goods) ->
+                            categories.forEach { (category, filteredGoods) ->
 
                                 item(span = { GridItemSpan(2) }) {
                                     Text(
@@ -219,30 +238,32 @@ fun MenuScreen(
                                     )
                                 }
 
-                                items(goods.size, key = { goods[it].id }) {
+                                items(filteredGoods.size, key = { filteredGoods[it].id }) {
                                     ListItem(
-                                        name = goods[it].name,
-                                        price = goods[it].price,
-                                        image = goods[it].image,
+                                        name = filteredGoods[it].name,
+                                        price = filteredGoods[it].price,
+                                        image = filteredGoods[it].image,
                                         onInfo = {
                                             showInfo = true
-                                            selectedDescription = goods[it].description
-                                            selectedImage = goods[it].image
-                                            selectedName = goods[it].name
+                                            selectedDescription = filteredGoods[it].description
+                                            selectedImage = filteredGoods[it].image
+                                            selectedName = filteredGoods[it].name
                                         },
                                         onAdd = {
                                             orderVm.addItem(
-                                                id = goods[it].id,
-                                                name = goods[it].name,
-                                                price = goods[it].price,
-                                                image = goods[it].image,
+                                                id = filteredGoods[it].id,
+                                                name = filteredGoods[it].name,
+                                                price = filteredGoods[it].price,
+                                                image = filteredGoods[it].image,
                                                 quantity = 1
                                             )
                                         },
                                         onDelete = {
-                                            orderVm.deleteItemById(goods[it].id)
+                                            orderVm.deleteItemById(filteredGoods[it].id)
                                         },
-                                        isSelected = orderVm.isItemInCart(goods[it].id),
+                                        isSelected = cartItems.any { cartItem ->
+                                            cartItem.idItem == filteredGoods[it].id
+                                        },
                                     )
                                     Log.d(
                                         "ListItem",
@@ -299,16 +320,16 @@ fun ListItem(
     CoffeeVibeTheme(content = {
         OutlinedCard(
             modifier = Modifier
-                .width(150.dp)
-                .height(300.dp)
+                .width(175.dp)
+                .height(260.dp)
                 .animateContentSize()
                 .clickable {
                     onInfo()
                 },
             colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surface,
+                containerColor = colorScheme.background,
             ),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(12.dp),
             border = BorderStroke(
                 if (isSelected) 2.dp else 1.dp,
                 if (isSelected) colorScheme.secondary else colorScheme.onSurface
@@ -319,9 +340,8 @@ fun ListItem(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
-
+                //CachedImage(image)
                 AsyncImage(
                     model =
                     ImageRequest.Builder(LocalContext.current).data(data = image)
@@ -340,37 +360,84 @@ fun ListItem(
 
                 Text(
                     text = name,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .animateContentSize()
-                )
-                Text(
-                    text = "$price руб.",
-                    color = colorScheme.onBackground,
-                    textAlign = TextAlign.Center
+                        .animateContentSize(),
+                    maxLines = 2
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = {
-                        if (isSelected) {
-                            onDelete()
-                        } else {
-                            onAdd()
-                        }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween)
+                {
                     Text(
-                        text = if (isSelected) "Из корзины" else "В корзину",
+                        text = "$price руб.",
                         color = colorScheme.onBackground,
-                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                        textAlign = TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(
+                        onClick = {
+                            if (isSelected) {
+                                onDelete()
+                            } else {
+                                onAdd()
+                            }
+                        },
+                        modifier = Modifier
+                            .width(45.dp)
+                            .height(45.dp)
+                            .clip(shape = RoundedCornerShape(17.dp))
+                            .background(color = colorScheme.secondary)
+                    ) {
+//                        Text(
+//                            text = if (isSelected) "Из корзины" else "В корзину",
+//                            color = colorScheme.onBackground,
+//                            fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+//                        )
+                        if (!isSelected) {
+                            Icon(
+                                Icons.Filled.Add,
+                                "Add",
+                                tint = colorScheme.background,
+                            )
+                        } else {
+                            Icon(
+                                Icons.Filled.Remove,
+                                "Remove",
+                                tint = colorScheme.background,
+                            )
+                        }
+                    }
                 }
             }
         }
     })
+}
+
+@Composable
+fun CachedImage(url: String){
+    Box {
+        AsyncImage(
+            model =
+            ImageRequest.Builder(LocalContext.current).data(data = url)
+                .apply(block = fun ImageRequest.Builder.() {
+                    crossfade(true) // Плавный переход при загрузке нового изображения
+                }).build(),
+            contentDescription = null, // Описание для доступности
+            modifier = Modifier
+                .width(130.dp)
+                .height(130.dp)
+                .clip(shape = RoundedCornerShape(20.dp)),
+            contentScale = ContentScale.Crop,
+        )
+
+        val painter = rememberAsyncImagePainter(url)
+        if (painter.state is AsyncImagePainter.State.Loading) {
+            CircularProgressIndicator(color = colorScheme.onBackground)
+        }
+    }
 }

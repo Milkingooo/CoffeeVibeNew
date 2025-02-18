@@ -1,19 +1,19 @@
 package com.example.coffeevibe.viewmodel
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.coffeevibe.database.CartEntity
-import com.google.firebase.Timestamp
+//import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.type.DateTime
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.UUID
+import java.time.Instant
+import java.sql.Timestamp
 import kotlin.random.Random
 
 @SuppressLint("SimpleDateFormat")
@@ -21,22 +21,30 @@ class OrderFinishViewModel : ViewModel() {
     private val firestore = Firebase.firestore
 
 
-    fun createOrder(idUser: String, idAddress: Int, totalPrice: Int, items: List<CartEntity>) {
-        val idOrder = Random.nextInt(0, 1001).toString()
+    fun createOrder(idUser: String, idAddress: Int, totalPrice: Int, items: List<CartEntity>, idPickupTime: Int) {
+        val idOrder = Random.nextInt(0, 9999).toString()
+        val timestamp = Timestamp.from(Instant.now())
 
         try {
             firestore.collection("Order").document(idOrder).set(
                 mapOf(
-                    "Date" to Timestamp.now(),
+                    "Date" to timestamp,
                     "IdClient" to idUser,
                     "IdLocation" to idAddress,
                     "Status" to "Создан",
-                    "TotalPrice" to totalPrice
+                    "TotalPrice" to totalPrice,
+                    "PickupTime" to when (idPickupTime){
+                        0 -> Timestamp.from(timestamp.toInstant().plusSeconds(5 * 60))
+                        1 -> Timestamp.from(timestamp.toInstant().plusSeconds(15 * 60))
+                        2 -> Timestamp.from(timestamp.toInstant().plusSeconds(30 * 60))
+                        3 -> Timestamp.from(timestamp.toInstant().plusSeconds(60 * 60))
+                        else -> timestamp.toInstant()
+                    },
                 )
             )
                 .addOnSuccessListener {
                     items.forEach {
-                        val idOrder2 = UUID.randomUUID().toString()
+                        val idOrder2 = Random.nextInt(0, 9999).toString()
                         firestore.collection("OrderItem").document(idOrder2).set(
                             mapOf(
                                 "IdOrder" to idOrder,
@@ -50,23 +58,5 @@ class OrderFinishViewModel : ViewModel() {
         catch (e: Exception) {
             Log.d("ErrorCreateOrder", e.toString())
         }
-    }
-
-    private fun isOrderNumUsed(idOrder: Int): Boolean {
-        viewModelScope.launch {
-            val snapshot = firestore
-                .collection("Order")
-                .get()
-                .await()
-            snapshot.documents.mapNotNull { item ->
-                try {
-                    return@mapNotNull item.id != idOrder.toString() || item.data?.get("Status").toString() != "Создан"
-                } catch (e: Exception) {
-                    Log.e("MyViewModel", "Error loading data", e)
-                    null
-                }
-            }
-        }
-        return false
     }
 }

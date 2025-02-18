@@ -1,19 +1,25 @@
 package com.example.coffeevibe.ui.ui
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,20 +27,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -60,6 +75,7 @@ import com.example.coffeevibe.viewmodel.OrderFinishViewModel
 import com.example.coffeevibe.viewmodel.OrderViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OrderFinish(
     onBackPressed: () -> Unit,
@@ -69,11 +85,12 @@ fun OrderFinish(
 ) {
     val items by orderVm.itemList.collectAsState()
     var locations: List<Location> = emptyList()
-    var placeSelected by remember { mutableStateOf(0) }
-    menuVm.getLocations { locations = it }
+    var placeSelected by remember { mutableIntStateOf(0) }
+    var pickupTime by remember { mutableIntStateOf(0) }
     val isUserAuth = AuthUtils.isUserAuth()
     val totalPrice by orderVm.total.collectAsState()
     val context = LocalContext.current
+    menuVm.getLocations { locations = it }
 
     CoffeeVibeTheme(content = {
         Scaffold(
@@ -119,32 +136,76 @@ fun OrderFinish(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
 
-                OrderPlaced(
-                    place = locations
-                ) {
-                    placeSelected = it
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Товары",
-                    color = colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
-                    fontSize = 20.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(5.dp))
 
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(500.dp),
+                        .wrapContentHeight(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        OrderPlaced(
+                            place = locations
+                        ) {
+                            placeSelected = it
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        )
+                        {
+                            items(1) {
+                                FilterChipItem(
+                                    "Сейчас"
+                                ){
+                                    pickupTime = it
+                                }
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                FilterChipItem(
+                                    "15 минут"
+                                ){
+                                    pickupTime = it
+                                }
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                FilterChipItem(
+                                    "30 минут"
+                                ){
+                                    pickupTime = it
+                                }
+
+                                Spacer(modifier = Modifier.width(4.dp))
+
+                                FilterChipItem(
+                                    "1 час"
+                                ){
+                                    pickupTime = it
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Товары",
+                            color = colorScheme.onBackground,
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                            fontSize = 20.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(5.dp))
+                    }
+
                     items(items, key = { it.id }) {
                         OrderFinishItem(
                             name = it.name,
@@ -153,60 +214,104 @@ fun OrderFinish(
                             quantity = it.quantity
                         )
                     }
-                }
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Оплата при получении",
+                            color = colorScheme.onBackground,
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                            fontSize = 16.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                Text(
-                    text = "Оплата при получении",
-                    color = colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                    fontSize = 16.sp,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                        Spacer(modifier = Modifier.height(6.dp))
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Button(
-                    onClick = {
-                        if(placeSelected != 0 && placeSelected != 0) {
-                            orderFinishVm.createOrder(
-                                idUser = AuthUtils.getUserId()!!,
-                                idAddress = placeSelected,
-                                totalPrice = totalPrice,
-                                items = items,
+                        Button(
+                            onClick = {
+                                if (placeSelected != 0 && placeSelected != 0) {
+                                    orderFinishVm.createOrder(
+                                        idUser = AuthUtils.getUserId()!!,
+                                        idAddress = placeSelected,
+                                        totalPrice = totalPrice,
+                                        items = items,
+                                        idPickupTime = 0
+                                    )
+                                    Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT)
+                                        .show()
+                                    orderVm.deleteAllItems()
+                                    onBackPressed()
+                                }
+                            },
+                            colors = if (isUserAuth && placeSelected != 0) {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = colorScheme.primary,
+                                    contentColor = colorScheme.onBackground
+                                )
+                            } else {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = colorScheme.surface,
+                                    contentColor = colorScheme.onBackground
+                                )
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp),
+                            enabled = isUserAuth
+                        ) {
+                            Text(
+                                "Заказать",
+                                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                                fontSize = 18.sp
                             )
-                            Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT).show()
-                            orderVm.deleteAllItems()
-                            onBackPressed()
                         }
-                    },
-                    colors = if (isUserAuth && placeSelected != 0) {
-                        ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.primary,
-                            contentColor = colorScheme.onBackground
-                        )
-                    } else {
-                        ButtonDefaults.buttonColors(
-                            containerColor = colorScheme.surface,
-                            contentColor = colorScheme.onBackground
-                        )
-                    },
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = isUserAuth
-                ) {
-                    Text(
-                        "Заказать",
-                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                        fontSize = 18.sp
-                    )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
+
+
             }
         }
     })
+}
+
+@Composable
+fun FilterChipItem(
+    name: String,
+    selectedTime: (Int) -> Unit,
+) {
+    var selected by remember { mutableStateOf(false) }
+    when (name) {
+        "Сейчас" -> selectedTime(0)
+        "15 минут" -> selectedTime(1)
+        "30 минут" -> selectedTime(2)
+        "1 час" -> selectedTime(3)
+    }
+
+
+    FilterChip(
+        onClick = { selected = !selected },
+        label = {
+            Text(name,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                color = if (selected) colorScheme.primary else colorScheme.onBackground,
+            )
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        } else {
+            null
+        },
+    )
 }
 
 @Preview(showBackground = true)
@@ -232,12 +337,12 @@ fun OrderPlaced(
 
     Card(
         modifier = Modifier
+            .animateContentSize()
             .fillMaxWidth()
             .clickable {
                 expanded = !expanded
             }
-            .animateContentSize()
-            .height(if (expanded) 250.dp else 55.dp)
+            .height(if (expanded) 200.dp else 55.dp)
             .clip(RoundedCornerShape(10.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.LightGray)
     ) {

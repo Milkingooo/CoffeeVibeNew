@@ -1,5 +1,6 @@
 package com.example.coffeevibe.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
@@ -8,9 +9,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.coffeevibe.database.CartDatabase
+import com.example.coffeevibe.database.CartEntity
 import com.example.coffeevibe.database.FirebaseDao
+import com.example.coffeevibe.model.CreateOrderItem
 import com.example.coffeevibe.model.Location
 import com.example.coffeevibe.model.MenuItem
+import com.example.coffeevibe.repository.CartRepository
 import com.example.coffeevibe.utils.AuthUtils
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -31,12 +36,12 @@ class MenuViewModel(val context: Context) : ViewModel() {
     private val _isOrderHas = MutableStateFlow(false)
     val isOrderHas: StateFlow<Boolean> = _isOrderHas
 
-    private val _orderNP = MutableStateFlow("0#0")
-    val orderNP: StateFlow<String> = _orderNP
+    private val _orderNP = MutableStateFlow<List<CreateOrderItem>>(emptyList())
+    val orderNP: StateFlow<List<CreateOrderItem>> = _orderNP.asStateFlow()
+
 
     init {
         loadData()
-        isUserSingleOrder()
         getOrderNumAndPrice()
     }
 
@@ -78,18 +83,18 @@ class MenuViewModel(val context: Context) : ViewModel() {
                 .whereEqualTo("IdClient", AuthUtils.getUserId())
                 .get()
                 .await()
-            snapshot.documents.mapNotNull { item ->
+            val items = snapshot.documents.mapNotNull { item ->
                 try {
                     when {
-                        item.data?.get("Status").toString() == "Создан" -> {
-                            withContext(Dispatchers.IO) {
-                                _orderNP.value =
-                                    "${item.id}#${item.data?.get("TotalPrice").toString()}"
-                            }
+                        item.data?.get("Status").toString() != "Выдан" -> {
+                         CreateOrderItem(
+                             price = item.data?.get("TotalPrice").toString().toInt(),
+                             number = item.id,
+                             pickupTime = item.data?.get("PickupTime").toString(),
+                         )
                         }
-
                         else -> {
-                            _orderNP.value = "0#0"
+                            null
                         }
                     }
 
@@ -98,26 +103,8 @@ class MenuViewModel(val context: Context) : ViewModel() {
                     null
                 }
             }
-        }
-    }
-
-    private fun isUserSingleOrder() {
-        viewModelScope.launch {
-            try {
-                val snapshot = firestore
-                    .collection("Order")
-                    .whereEqualTo("IdClient", AuthUtils.getUserId())
-                    .get()
-                    .await()
-
-                val ordersCount = snapshot.documents.count { document ->
-                    document["Status"]?.toString()?.trim() == "Создан"
-                }
-
-                _isOrderHas.value = ordersCount > 0
-            } catch (e: Exception) {
-                Log.e("MyViewModel", "Error loading data", e)
-                _isOrderHas.value = false
+            withContext(Dispatchers.Main){
+                _orderNP.value = items
             }
         }
     }
@@ -144,4 +131,5 @@ class MenuViewModel(val context: Context) : ViewModel() {
         }
         locations(loc)
     }
+
 }

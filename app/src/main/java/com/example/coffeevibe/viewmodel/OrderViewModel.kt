@@ -53,19 +53,21 @@ class OrderViewModel(private val repository: CartRepository, context: Context) :
     }
 
     fun addItem(id: Int, name: String, price: Int, quantity: Int, image: String) {
-        viewModelScope.launch {
-            try {
-                val newItem = CartEntity(
-                    idItem = id,
-                    name = name,
-                    price = price,
-                    quantity = quantity,
-                    image = image
-                )
-                repository.addItem(newItem)
-                menuVm.loadData()
-            } catch (e: Exception) {
-                Log.e("OrderListViewModel", "Error adding password: ${e.message}", e)
+        if (_itemList.value.none { it.idItem == id }) {
+            viewModelScope.launch {
+                try {
+                    val newItem = CartEntity(
+                        idItem = id,
+                        name = name,
+                        price = price,
+                        quantity = quantity,
+                        image = image
+                    )
+                    repository.addItem(newItem)
+                    menuVm.loadData()
+                } catch (e: Exception) {
+                    Log.e("OrderListViewModel", "Error adding password: ${e.message}", e)
+                }
             }
         }
     }
