@@ -26,4 +26,8 @@ object NetworkUtils {
                 connectivityManager.unregisterNetworkCallback(callback)
             }
     }
+
+    fun isNewVersionAvailable(context: Context){
+
+    }
 }

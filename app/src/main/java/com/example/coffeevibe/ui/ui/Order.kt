@@ -257,17 +257,16 @@ fun CartItem(
                 contentScale = ContentScale.Crop,
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Column {
                 Text(text = name,
                     color = colorScheme.onBackground,
                     modifier = Modifier.width(150.dp),
+                    maxLines = 2,
                     )
                 Text(text = "$price руб.", color = colorScheme.onBackground)
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -285,15 +284,11 @@ fun CartItem(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Text(
                     text = quantity.toString(),
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 IconButton(onClick = {
                     onPlus()

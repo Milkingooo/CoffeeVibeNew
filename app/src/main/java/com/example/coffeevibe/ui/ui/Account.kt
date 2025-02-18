@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.content.Intent
 import android.graphics.drawable.Icon
 import android.media.Image
 import android.widget.Toast
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Support
 import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -54,13 +57,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.Uri
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
+import com.example.coffeevibe.utils.DeviceUtils
 import com.example.coffeevibe.viewmodel.LoginViewModel
 
 @Composable
 fun AccountScreen(
-    logOut: () -> Unit
+    logOut: () -> Unit,
+    //loadUpdateApk: () -> Unit
 ) {
     val context = LocalContext.current
     val loginVm = LoginViewModel(context)
@@ -122,6 +128,11 @@ fun AccountScreen(
                     icon = Icons.Filled.SupportAgent,
                     //BitmapPainter(ImageBitmap.imageResource(R.drawable.settings_48)),
                     action = {})
+//                SettingsCategoryWithButton("Текущая версия: ${DeviceUtils.getAppVersion(context)}",
+//                    icon = Icons.Filled.Update,
+//                    action = {
+//
+//                    })
 
                 Button(
                     onClick = {
@@ -176,12 +187,6 @@ fun SettingsSubCategory(name: String,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-//            Icon(
-//                icon,
-//                contentDescription = "Reset",
-//                tint = colorScheme.onBackground,
-//                modifier = Modifier.size(35.dp)
-//            )
             Icon(
                 icon,
                 contentDescription = "Reset1",
@@ -196,6 +201,46 @@ fun SettingsSubCategory(name: String,
                 fontSize = 20.sp,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
             )
+        }
+    })
+}
+
+@Composable
+fun SettingsCategoryWithButton(name: String,
+                        action: () -> Unit,
+                        icon: ImageVector) {
+    CoffeeVibeTheme(content = {
+        val colorScheme = MaterialTheme.colorScheme
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Text(
+                text = name,
+                color = colorScheme.onBackground,
+                textAlign = TextAlign.Left,
+                fontSize = 20.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = {
+                    action()
+                },
+               shape = RoundedCornerShape(8.dp),
+            ) {
+                Text(
+                    text = "Обновить",
+                    color = colorScheme.onBackground,
+                    textAlign = TextAlign.Left,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
+                )
+            }
         }
     })
 }
