@@ -1,5 +1,6 @@
 package com.example.coffeevibe.ui.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,7 @@ fun Registr(
     var email by remember { mutableStateOf("") }
     var isInCorrect by remember { mutableStateOf(false) }
     val loginVm = LoginViewModel(LocalContext.current)
+    val context = LocalContext.current
 
     CoffeeVibeTheme(content = {
         Column(
@@ -103,7 +105,7 @@ fun Registr(
                 ),
                 placeholder = { Text("Enter your name", color = colorScheme.onSurface) },
                 isError = isInCorrect,
-                maxLines = 1,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
                         Icons.Filled.AccountCircle,
@@ -144,7 +146,7 @@ fun Registr(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 placeholder = { Text("Enter password", color = colorScheme.onSurface) },
                 isError = isInCorrect,
-                maxLines = 1,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Password,
@@ -185,7 +187,7 @@ fun Registr(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 placeholder = { Text("Enter email", color = colorScheme.onSurface) },
                 isError = isInCorrect,
-                maxLines = 1,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Email,
@@ -199,17 +201,24 @@ fun Registr(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
+
                 onClick = {
-                    loginVm.signUp(
-                        email = email,
-                        password = password,
-                        name = name){
-                        if(it){
-                            isInCorrect = false
-                            inLogin()
-                            isReg()
+                    if(password.trim().length <= 6){
+                        isInCorrect = true
+                        Toast.makeText(context, "Пароль должен быть больше 6 символов", Toast.LENGTH_SHORT).show()
+                    }
+                    else {
+                        loginVm.signUp(
+                            email = email,
+                            password = password,
+                            name = name
+                        ) {
+                            if (it) {
+                                isInCorrect = false
+                                inLogin()
+                                isReg()
+                            } else isInCorrect = true
                         }
-                        else isInCorrect = true
                     }
                 },
                 colors = ButtonDefaults.buttonColors(

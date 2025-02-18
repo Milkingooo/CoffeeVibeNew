@@ -104,7 +104,7 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 placeholder = { Text("Enter email", color = colorScheme.onSurface) },
                 isError = isInCorrect,
-                maxLines = 1,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
                         Icons.Filled.AccountCircle,
@@ -145,7 +145,7 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 placeholder = { Text("Enter password", color = colorScheme.onSurface) },
                 isError = isInCorrect,
-                maxLines = 1,
+                singleLine = true,
                 leadingIcon = {
                     Icon(
                         Icons.Filled.Password,
@@ -176,19 +176,24 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    loginVm.login(
-                        login = email,
-                        password = password,
-                        isLogin = {
-                            if(it) {
-                                isInCorrect = false
-                                onLogin()
+                    if(password.trim().length <= 6){
+                        isInCorrect = true
+                        Toast.makeText(context, "Пароль должен быть больше 6 символов", Toast.LENGTH_SHORT).show()
+                    }
+                    else {
+                        loginVm.login(
+                            login = email,
+                            password = password,
+                            isLogin = {
+                                if (it) {
+                                    isInCorrect = false
+                                    onLogin()
+                                } else {
+                                    isInCorrect = true
+                                }
                             }
-                            else {
-                                isInCorrect = true
-                            }
-                        }
-                    )
+                        )
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = colorScheme.primary,
