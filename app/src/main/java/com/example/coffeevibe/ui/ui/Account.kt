@@ -93,7 +93,7 @@ fun AccountScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Account",
+                        text = "Аккаунт",
                         color = colorScheme.onBackground,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                         fontSize = 28.sp,
@@ -115,10 +115,10 @@ fun AccountScreen(
 
                 Spacer(modifier = Modifier.size(26.dp))
 
-                SettingsSubCategory("Account settings",
+                SettingsSubCategory("Настройки аккаунта",
                     icon = Icons.Filled.AccountCircle,
                     action = {})
-                SettingsSubCategory("Support",
+                SettingsSubCategory("Поддержка",
                     icon = Icons.Filled.SupportAgent,
                     //BitmapPainter(ImageBitmap.imageResource(R.drawable.settings_48)),
                     action = {})
@@ -136,7 +136,7 @@ fun AccountScreen(
                         .height(45.dp)
                 ) {
                     Text(
-                        text = if(isUserLoggedIn) "Log out" else "Log in",
+                        text = if(isUserLoggedIn) "Выйти" else "Войти",
                         style = TextStyle(
                             fontSize = 16.sp,
                             color = colorScheme.onBackground,

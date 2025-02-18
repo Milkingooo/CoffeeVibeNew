@@ -151,7 +151,7 @@ fun CartScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Cart",
+                        text = "Корзина",
                         color = colorScheme.onBackground,
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                         fontSize = 28.sp,
@@ -251,9 +251,9 @@ fun CartItem(
                     }).build(),
                 contentDescription = null, // Описание для доступности
                 modifier = Modifier
-                    .width(80.dp)
-                    .height(80.dp)
-                    .clip(shape = RoundedCornerShape(20.dp)),
+                    .width(90.dp)
+                    .height(90.dp)
+                    .clip(shape = RoundedCornerShape(16.dp)),
                 contentScale = ContentScale.Crop,
             )
 

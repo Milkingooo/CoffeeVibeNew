@@ -41,6 +41,7 @@ class MenuViewModel(val context: Context) : ViewModel() {
     val orderNP: StateFlow<List<CreateOrderItem>> = _orderNP.asStateFlow()
 
 
+
     init {
         loadData()
         isUserSingleOrder()

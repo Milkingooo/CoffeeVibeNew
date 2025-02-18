@@ -66,20 +66,20 @@ fun Registr(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Sign up",
+                text = "Создание аккаунта",
                 color = colorScheme.onBackground,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                fontSize = 42.sp,
-                textAlign = TextAlign.Center
+                fontSize = 40.sp,
+                textAlign = TextAlign.Center,
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
             Text(
-                text = "Name",
+                text = "Имя",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp, // Используем стиль текста из темы
                 modifier = Modifier.fillMaxWidth(),
@@ -103,7 +103,7 @@ fun Registr(
                     focusedTextColor = colorScheme.onBackground,
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
-                placeholder = { Text("Enter your name", color = colorScheme.onSurface) },
+                placeholder = { Text("Введите имя", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 singleLine = true,
                 leadingIcon = {
@@ -119,7 +119,7 @@ fun Registr(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Password",
+                text = "Пароль",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -144,7 +144,7 @@ fun Registr(
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                placeholder = { Text("Enter password", color = colorScheme.onSurface) },
+                placeholder = { Text("********", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 singleLine = true,
                 leadingIcon = {
@@ -160,7 +160,7 @@ fun Registr(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Email",
+                text = "Почта",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -185,7 +185,7 @@ fun Registr(
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                placeholder = { Text("Enter email", color = colorScheme.onSurface) },
+                placeholder = { Text("xyz@gmail.com", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 singleLine = true,
                 leadingIcon = {
@@ -231,7 +231,7 @@ fun Registr(
                     .height(52.dp)
             ) {
                 Text(
-                    "Continue",
+                    "Продолжить",
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                     fontSize = 18.sp
                 )
@@ -240,7 +240,7 @@ fun Registr(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Already registered? Sign in",
+                text = "Зарегистрированы? Войти",
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 modifier = Modifier

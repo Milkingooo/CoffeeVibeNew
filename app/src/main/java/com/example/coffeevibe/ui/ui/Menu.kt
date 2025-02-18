@@ -62,16 +62,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
@@ -224,7 +228,7 @@ fun MenuScreen(
                                     }
                                 }
                             }
-                            val categories = filteredGoods.groupBy { it.category }
+                            val categories = filteredGoods.groupBy { it.category }.toSortedMap()
 
                             categories.forEach { (category, filteredGoods) ->
 
@@ -264,6 +268,7 @@ fun MenuScreen(
                                         isSelected = cartItems.any { cartItem ->
                                             cartItem.idItem == item.id
                                         },
+                                        available = item.status
                                     )
                                 }
                             }
@@ -311,14 +316,14 @@ fun ListItem(
     onAdd: () -> Unit,
     isSelected: Boolean = false,
     onDelete: () -> Unit,
+    available: String
 ) {
 
     CoffeeVibeTheme(content = {
         OutlinedCard(
             modifier = Modifier
                 .width(175.dp)
-                .height(260.dp)
-                .animateContentSize()
+                .height(270.dp)
                 .clickable {
                     onInfo()
                 },
@@ -337,20 +342,6 @@ fun ListItem(
                     .fillMaxSize()
                     .padding(16.dp),
             ) {
-                //CachedImage(image)
-//                AsyncImage(
-//                    model =
-//                    ImageRequest.Builder(LocalContext.current).data(data = image)
-//                        .apply(block = fun ImageRequest.Builder.() {
-//                            crossfade(true) // Плавный переход при загрузке нового изображения
-//                        }).build(),
-//                    contentDescription = null, // Описание для доступности
-//                    modifier = Modifier
-//                        .width(130.dp)
-//                        .height(130.dp)
-//                        .clip(shape = RoundedCornerShape(20.dp)),
-//                    contentScale = ContentScale.Crop,
-//                )
 
                 Image(
                     painter = rememberAsyncImagePainter(
@@ -374,7 +365,7 @@ fun ListItem(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .animateContentSize(),
-                    maxLines = 2
+                    maxLines = 2,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -382,12 +373,23 @@ fun ListItem(
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween)
                 {
-                    Text(
-                        text = "$price руб.",
-                        color = colorScheme.onBackground,
-                        textAlign = TextAlign.Center
-                    )
+                    if(available == "Недоступен") {
+                        Text(
+                            text = "Недоступен",
+                            color = colorScheme.error,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    else {
+                        Text(
+                            text = "$price руб.",
+                            color = colorScheme.onBackground,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     IconButton(
                         onClick = {
                             if (isSelected) {
@@ -400,7 +402,8 @@ fun ListItem(
                             .width(45.dp)
                             .height(45.dp)
                             .clip(shape = RoundedCornerShape(17.dp))
-                            .background(color = colorScheme.secondary)
+                            .background(color = if(available == "Недоступен") Color.LightGray else colorScheme.secondary),
+                        enabled = available != "Недоступен"
                     ) {
 //                        Text(
 //                            text = if (isSelected) "Из корзины" else "В корзину",

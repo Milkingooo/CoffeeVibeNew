@@ -11,4 +11,4 @@ data class MenuItem(
     val description: String = "",
     val category: String = "",
     val status: String = ""
-    )
+)

@@ -64,20 +64,20 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Welcome back",
+                text = "Добро пожаловать",
                 color = colorScheme.onBackground,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                fontSize = 42.sp,
+                fontSize = 40.sp,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.size(16.dp))
 
             Text(
-                text = "Email",
+                text = "Почта",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp, // Используем стиль текста из темы
                 modifier = Modifier.fillMaxWidth(),
@@ -102,7 +102,7 @@ fun LoginScreen(
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                placeholder = { Text("Enter email", color = colorScheme.onSurface) },
+                placeholder = { Text("xyz@gmail.com", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 singleLine = true,
                 leadingIcon = {
@@ -118,7 +118,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Password",
+                text = "Пароль",
                 textAlign = TextAlign.Left,
                 fontSize = 18.sp,
                 modifier = Modifier.fillMaxWidth(),
@@ -143,7 +143,7 @@ fun LoginScreen(
                     unfocusedTextColor = colorScheme.onBackground,
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                placeholder = { Text("Enter password", color = colorScheme.onSurface) },
+                placeholder = { Text("********", color = colorScheme.onSurface) },
                 isError = isInCorrect,
                 singleLine = true,
                 leadingIcon = {
@@ -159,14 +159,14 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Forgot password?",
+                text = "Забыли пароль?",
                 textAlign = TextAlign.Left,
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable{
                         if (email.isNotBlank()) loginVm.sendPasswordResetEmail(email = email)
-                        else Toast.makeText(context, "Enter email", Toast.LENGTH_SHORT).show()
+                        else Toast.makeText(context, "Введите почту", Toast.LENGTH_SHORT).show()
                     },
                 color = colorScheme.onBackground,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
@@ -205,7 +205,7 @@ fun LoginScreen(
                     .height(52.dp)
             ) {
                 Text(
-                    "Log in",
+                    "Войти",
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                     fontSize = 18.sp
                 )
@@ -214,7 +214,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "New user? Sign Up",
+                text = "Впервые? Зарегистрироваться",
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 modifier = Modifier
