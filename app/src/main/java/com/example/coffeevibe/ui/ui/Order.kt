@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,25 +80,28 @@ fun CartScreen(
                     floatingActionButton = {
                         FloatingActionButton(
                             onClick = {
-                                if(orderItems.isNotEmpty() && AuthUtils.isUserAuth()) {
+                                if (orderItems.isNotEmpty() && AuthUtils.isUserAuth()) {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     onCreateOrder()
-                                }
-                                else if(!AuthUtils.isUserAuth()) {
-                                    Toast.makeText(context, "Пожалуйста авторизируйтесь", Toast.LENGTH_SHORT).show()
-                                }
-                                else {
-                                    Toast.makeText(context, "Корзина пуста", Toast.LENGTH_SHORT).show()
+                                } else if (!AuthUtils.isUserAuth()) {
+                                    Toast.makeText(
+                                        context,
+                                        "Пожалуйста авторизируйтесь",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(context, "Корзина пуста", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             },
-                            containerColor = if(orderItems.isNotEmpty() && AuthUtils.isUserAuth()) colorScheme.primary else colorScheme.surface,
+                            containerColor = if (orderItems.isNotEmpty() && AuthUtils.isUserAuth()) colorScheme.primary else colorScheme.surface,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
                                 .clip(RoundedCornerShape(10.dp)),
 
-                        ) {
+                            ) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
@@ -186,8 +190,7 @@ fun CartScreen(
                             onPlus = {
                                 if (it.quantity <= 9) {
                                     orderVm.updateItem(it, it.quantity + 1)
-                                }
-                                else haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                } else haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             onMinus = {
                                 if (it.price > 1) {
@@ -240,7 +243,7 @@ fun CartItem(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
@@ -251,56 +254,60 @@ fun CartItem(
                     }).build(),
                 contentDescription = null, // Описание для доступности
                 modifier = Modifier
-                    .width(90.dp)
-                    .height(90.dp)
+                    .width(75.dp)
+                    .height(75.dp)
                     .clip(shape = RoundedCornerShape(16.dp)),
                 contentScale = ContentScale.Crop,
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column {
-                Text(text = name,
-                    color = colorScheme.onBackground,
-                    modifier = Modifier.width(150.dp),
-                    maxLines = 2,
-                    )
-                Text(text = "$price руб.", color = colorScheme.onBackground)
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {
-                    onMinus()
-                }) {
-                    Icon(
-                        Icons.Filled.Remove,
-                        contentDescription = "Localized description",
-                        tint = colorScheme.onBackground,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
-                    )
-                }
-
                 Text(
-                    text = quantity.toString(),
+                    text = name,
                     color = colorScheme.onBackground,
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
+                    //modifier = Modifier.width(150.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(text = "$price руб.", color = colorScheme.onBackground)
 
-                IconButton(onClick = {
-                    onPlus()
-                }) {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = "Localized description",
-                        tint = colorScheme.onBackground,
-                        modifier = Modifier
-                            .width(30.dp)
-                            .height(30.dp)
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    IconButton(onClick = {
+                        onMinus()
+                    }) {
+                        Icon(
+                            Icons.Filled.Remove,
+                            contentDescription = "Localized description",
+                            tint = colorScheme.onBackground,
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                        )
+                    }
+
+                    Text(
+                        text = quantity.toString(),
+                        color = colorScheme.onBackground,
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold))
                     )
+
+                    IconButton(onClick = {
+                        onPlus()
+                    }) {
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = "Localized description",
+                            tint = colorScheme.onBackground,
+                            modifier = Modifier
+                                .width(30.dp)
+                                .height(30.dp)
+                        )
+                    }
                 }
             }
         }

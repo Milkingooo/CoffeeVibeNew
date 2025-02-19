@@ -15,13 +15,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -35,49 +39,22 @@ import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 
 @Composable
-fun MinimalDialog(onDismissRequest: () -> Unit,
-                  description: String,
-                  image: String,
-                  name: String
-) {
+fun MinimalDialog(onDismissRequest: () -> Unit) {
     CoffeeVibeTheme(content = {
         Dialog(onDismissRequest = { onDismissRequest() }
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(500.dp)
-                    .padding(16.dp),
+            Surface(
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = colorScheme.surface,
-                )
+                color = Color.White
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(16.dp),
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Image(
-                        painter =
-                        rememberAsyncImagePainter(
-                            ImageRequest.Builder(LocalContext.current).data(data = image).apply(block = fun ImageRequest.Builder.() {
-                                crossfade(true) // Плавный переход при загрузке нового изображения
-                            }).build()
-                        ),
-                        contentDescription = null, // Описание для доступности
-                        modifier = Modifier
-                        .width(250.dp)
-                        .height(250.dp)
-                            .clip(shape = RoundedCornerShape(20.dp)),
-                                contentScale = ContentScale.Crop,
-                    )
-
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    Text(text = name,
+                    Text(text = "name",
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                         color = colorScheme.onBackground,
                         textAlign = TextAlign.Center,
@@ -85,7 +62,7 @@ fun MinimalDialog(onDismissRequest: () -> Unit,
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(text = description,
+                    Text(text = "description",
                         fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
                         color = colorScheme.onBackground,
                         textAlign = TextAlign.Center,
@@ -103,8 +80,5 @@ fun MinimalDialog(onDismissRequest: () -> Unit,
 fun MinDialogPreview() {
     MinimalDialog(
         onDismissRequest = {},
-        description = "Некоторое описание чего-то там, может быть даже полезное, но это вряд-ли :)",
-        image = "",
-        name = ""
     )
 }

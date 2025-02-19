@@ -35,6 +35,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Search
@@ -72,6 +74,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -287,20 +290,18 @@ fun MenuScreen(
                                 selectedImage = ""
                                 selectedName = ""
                             },
+                        )
+                    }
+
+                    if(showSheet){
+                        AboutItemSheet(showSheet,
                             description = selectedDescription,
                             image = selectedImage,
                             name = selectedName
-                        )
+                        ){
+                            showSheet = it
+                        }
                     }
-                }
-            }
-            if(showSheet){
-                AboutItemSheet(showSheet,
-                    description = selectedDescription,
-                    image = selectedImage,
-                    name = selectedName
-                    ){
-                    showSheet = it
                 }
             }
         }
@@ -376,7 +377,8 @@ fun ListItem(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .animateContentSize(),
-                    maxLines = 2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -416,11 +418,6 @@ fun ListItem(
                             .background(color = if(available == "Недоступен") Color.LightGray else colorScheme.secondary),
                         enabled = available != "Недоступен"
                     ) {
-//                        Text(
-//                            text = if (isSelected) "Из корзины" else "В корзину",
-//                            color = colorScheme.onBackground,
-//                            fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-//                        )
                         if (!isSelected) {
                             Icon(
                                 Icons.Filled.Add,
@@ -429,7 +426,7 @@ fun ListItem(
                             )
                         } else {
                             Icon(
-                                Icons.Filled.Remove,
+                                Icons.Filled.Delete,
                                 "Remove",
                                 tint = colorScheme.background,
                             )

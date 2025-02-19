@@ -51,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,7 @@ fun OrderFinish(
     var locations: List<Location> = emptyList()
     var placeSelected by remember { mutableIntStateOf(0) }
     var pickupTime by remember { mutableIntStateOf(0) }
+    var showInfo by rememberSaveable { mutableStateOf(false) }
     val isUserAuth = AuthUtils.isUserAuth()
     val totalPrice by orderVm.total.collectAsState()
     val context = LocalContext.current
@@ -147,6 +149,16 @@ fun OrderFinish(
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        Text(
+                            text = "Заберу здесь",
+                            color = colorScheme.onBackground,
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                            fontSize = 20.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         OrderPlaced(
                             place = locations
                         ) {
@@ -154,6 +166,16 @@ fun OrderFinish(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Заберу через",
+                            color = colorScheme.onBackground,
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                            fontSize = 20.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Row(
                             modifier = Modifier
@@ -193,7 +215,7 @@ fun OrderFinish(
                         Text(
                             text = "Товары",
                             color = colorScheme.onBackground,
-                            fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
                             fontSize = 20.sp,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -237,6 +259,7 @@ fun OrderFinish(
                                     orderVm.deleteAllItems()
                                     onBackPressed()
                                 }
+                                //showInfo = true
                             },
                             colors = if (isUserAuth && placeSelected != 0) {
                                 ButtonDefaults.buttonColors(
@@ -258,6 +281,7 @@ fun OrderFinish(
                             Text(
                                 "Заказать",
                                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                                color = colorScheme.background,
                                 fontSize = 18.sp
                             )
                         }
@@ -265,8 +289,12 @@ fun OrderFinish(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
+            }
 
-
+            if (showInfo) {
+                MinimalDialog(
+                    onDismissRequest = { showInfo = false },
+                )
             }
         }
     })

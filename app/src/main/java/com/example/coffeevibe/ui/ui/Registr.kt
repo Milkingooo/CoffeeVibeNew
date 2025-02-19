@@ -71,8 +71,8 @@ fun Registr(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                fontSize = 40.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                fontSize = 32.sp,
                 textAlign = TextAlign.Center,
             )
 
@@ -232,7 +232,8 @@ fun Registr(
             ) {
                 Text(
                     "Продолжить",
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                    color = colorScheme.background,
                     fontSize = 18.sp
                 )
             }

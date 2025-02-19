@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import com.example.coffeevibe.R
 import com.example.coffeevibe.ui.theme.CoffeeVibeTheme
 import com.example.coffeevibe.viewmodel.LoginViewModel
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -69,8 +71,8 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                fontFamily = FontFamily(Font(R.font.roboto_condensed_extrabold)),
-                fontSize = 40.sp,
+                fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+                fontSize = 32.sp,
                 textAlign = TextAlign.Center
             )
 
@@ -164,9 +166,17 @@ fun LoginScreen(
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable{
-                        if (email.isNotBlank()) loginVm.sendPasswordResetEmail(email = email)
-                        else Toast.makeText(context, "Введите почту", Toast.LENGTH_SHORT).show()
+                    .clickable {
+                        MainScope().launch {
+                            if (email.isBlank()){
+                                Toast.makeText(context, "Введите почту", Toast.LENGTH_SHORT).show()
+                            }
+                            else if (email.isNotBlank() && loginVm.checkEmailInDb(email = email)) {
+                                loginVm.sendPasswordResetEmail(email = email)
+                            } else {
+                                Toast.makeText(context, "Пользоателя с таким email не существует", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     },
                 color = colorScheme.onBackground,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
@@ -176,11 +186,14 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    if(password.trim().length <= 6){
+                    if (password.trim().length < 6) {
                         isInCorrect = true
-                        Toast.makeText(context, "Пароль должен быть больше 6 символов", Toast.LENGTH_SHORT).show()
-                    }
-                    else {
+                        Toast.makeText(
+                            context,
+                            "Пароль должен быть больше 6 символов",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
                         loginVm.login(
                             login = email,
                             password = password,
@@ -206,7 +219,8 @@ fun LoginScreen(
             ) {
                 Text(
                     "Войти",
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_black)),
+                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                    color = colorScheme.background,
                     fontSize = 18.sp
                 )
             }
@@ -219,7 +233,7 @@ fun LoginScreen(
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable{
+                    .clickable {
                         inReg()
                     },
                 color = colorScheme.onBackground,

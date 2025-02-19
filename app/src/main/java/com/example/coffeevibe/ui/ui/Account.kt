@@ -70,7 +70,7 @@ fun AccountScreen(
 ) {
     val context = LocalContext.current
     val loginVm = LoginViewModel(context)
-    var name by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("Пожалуйста войдите") }
     var isUserLoggedIn by remember { mutableStateOf(false) }
     isUserLoggedIn = loginVm.isLogin()
 
@@ -121,13 +121,13 @@ fun AccountScreen(
 
                 Spacer(modifier = Modifier.size(26.dp))
 
-                SettingsSubCategory("Настройки аккаунта",
-                    icon = Icons.Filled.AccountCircle,
-                    action = {})
-                SettingsSubCategory("Поддержка",
-                    icon = Icons.Filled.SupportAgent,
-                    //BitmapPainter(ImageBitmap.imageResource(R.drawable.settings_48)),
-                    action = {})
+//                SettingsSubCategory("Настройки аккаунта",
+//                    icon = Icons.Filled.AccountCircle,
+//                    action = {})
+//                SettingsSubCategory("Поддержка",
+//                    icon = Icons.Filled.SupportAgent,
+//                    //BitmapPainter(ImageBitmap.imageResource(R.drawable.settings_48)),
+//                    action = {})
 //                SettingsCategoryWithButton("Текущая версия: ${DeviceUtils.getAppVersion(context)}",
 //                    icon = Icons.Filled.Update,
 //                    action = {
@@ -150,9 +150,8 @@ fun AccountScreen(
                         text = if(isUserLoggedIn) "Выйти" else "Войти",
                         style = TextStyle(
                             fontSize = 16.sp,
-                            color = colorScheme.onBackground,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily(Font(R.font.roboto_condensed_black))
+                            color = colorScheme.background,
+                            fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
                         )
                     )
                 }

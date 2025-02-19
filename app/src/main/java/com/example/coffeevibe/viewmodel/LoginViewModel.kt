@@ -8,9 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 
 class LoginViewModel(val context: Context) : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
@@ -50,8 +49,7 @@ class LoginViewModel(val context: Context) : ViewModel() {
                     isSignUp(false)
                     Toast.makeText(context, "Регистрация не прошла", Toast.LENGTH_SHORT).show()
                 }
-        }
-        else isSignUp(false)
+        } else isSignUp(false)
     }
 
     private fun addUserInDb(
@@ -79,6 +77,15 @@ class LoginViewModel(val context: Context) : ViewModel() {
         }
     }
 
+    suspend fun checkEmailInDb(email: String): Boolean {
+        return try {
+            !(db.collection("Client").whereEqualTo("Email", email).get().await().isEmpty)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     fun sendPasswordResetEmail(email: String) {
         auth.sendPasswordResetEmail(email)
             .addOnSuccessListener {
@@ -90,7 +97,11 @@ class LoginViewModel(val context: Context) : ViewModel() {
     }
 
     fun logout() {
-        if (auth.currentUser != null) Toast.makeText(context, "Вы вышли из аккаунта", Toast.LENGTH_SHORT).show()
+        if (auth.currentUser != null) Toast.makeText(
+            context,
+            "Вы вышли из аккаунта",
+            Toast.LENGTH_SHORT
+        ).show()
         auth.signOut()
     }
 
