@@ -184,9 +184,6 @@ fun CartScreen(
                             price = it.price,
                             image = it.image,
                             quantity = it.quantity,
-                            onDelete = {
-                                orderVm.deleteItem(it)
-                            },
                             onPlus = {
                                 if (it.quantity <= 9) {
                                     orderVm.updateItem(it, it.quantity + 1)
@@ -227,7 +224,6 @@ fun CartItem(
     price: Int,
     image: String,
     quantity: Int,
-    onDelete: () -> Unit,
     onPlus: () -> Unit,
     onMinus: () -> Unit
 ) {

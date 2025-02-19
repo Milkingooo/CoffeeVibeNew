@@ -74,6 +74,7 @@ fun MainScreen(
                     CartScreen(
                         onCreateOrder = {
                             inFinishOrder()
+                            navController.navigate("menu")
                         },
                         orderVm = orderViewModel
                     )
