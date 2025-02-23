@@ -27,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -75,6 +76,7 @@ fun OrderFinish(
     var placeSelected by remember { mutableIntStateOf(0) }
     var pickupTime by remember { mutableIntStateOf(0) }
     var showInfo by rememberSaveable { mutableStateOf(false) }
+    var progressState by remember { mutableStateOf(false) }
     val isUserAuth = AuthUtils.isUserAuth()
     val totalPrice by orderVm.total.collectAsState()
     val context = LocalContext.current
@@ -241,19 +243,22 @@ fun OrderFinish(
                         Button(
                             onClick = {
                                 if (placeSelected != 0) {
+                                    progressState = true
+
                                     orderFinishVm.createOrder(
                                         idUser = AuthUtils.getUserId()!!,
                                         idAddress = placeSelected,
                                         totalPrice = totalPrice,
                                         items = items,
                                         idPickupTime = pickupTime
-                                    )
+                                    ){
+                                        progressState = false
+                                    }
                                     Toast.makeText(context, "Заказ оформлен", Toast.LENGTH_SHORT)
                                         .show()
                                     orderVm.deleteAllItems()
                                     onBackPressed()
                                 }
-                                //showInfo = true
                             },
                             colors = if (isUserAuth && placeSelected != 0) {
                                 ButtonDefaults.buttonColors(
@@ -272,12 +277,19 @@ fun OrderFinish(
                                 .height(52.dp),
                             enabled = isUserAuth
                         ) {
-                            Text(
-                                "Заказать",
-                                fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                                color = colorScheme.background,
-                                fontSize = 18.sp
-                            )
+                            if (progressState) {
+                                CircularProgressIndicator(
+                                    color = colorScheme.background,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            } else {
+                                Text(
+                                    "Заказать",
+                                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                                    color = colorScheme.background,
+                                    fontSize = 18.sp
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -368,7 +380,7 @@ fun OrderPlaced(
             .clickable {
                 expanded = !expanded
             }
-            .height(if (expanded) 200.dp else 55.dp)
+            .height(if (expanded) 180.dp else 55.dp)
             .clip(RoundedCornerShape(10.dp)),
         colors = CardDefaults.cardColors(containerColor = Color.LightGray)
     ) {

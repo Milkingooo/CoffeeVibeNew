@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -98,9 +99,8 @@ fun CartScreen(
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
+                                .wrapContentHeight()
                                 .clip(RoundedCornerShape(10.dp)),
-
                             ) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -132,7 +132,7 @@ fun CartScreen(
                     modifier = Modifier
                         .background(color = colorScheme.background)
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                        .height(85.dp)
+                        .wrapContentHeight()
                         .padding(start = 12.dp),
                     containerColor = colorScheme.background,
                 )

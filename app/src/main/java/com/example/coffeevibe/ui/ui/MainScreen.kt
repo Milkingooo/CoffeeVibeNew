@@ -115,12 +115,12 @@ fun BottomNavigationBar(navController: NavController) {
                     icon = {
                         Icon(
                             imageVector = navItem.image,
-                            contentDescription = navItem.title,
+                            contentDescription = "Local description",
                             tint = Color.Black,
                         )
                     },
                     label = {
-                        Text(text = navItem.title)
+
                     },
                     modifier = Modifier.background(colorScheme.background)
                 )
@@ -132,17 +132,14 @@ fun BottomNavigationBar(navController: NavController) {
 object NavBarItems {
     val BarItems = listOf(
         BarItem(
-            title = "Меню",
             image = Icons.Filled.Menu,
             route = "menu"
         ),
         BarItem(
-            title = "Корзина",
             image = Icons.Filled.ShoppingCart,
             route = "cart"
         ),
         BarItem(
-            title = "Аккаунт",
             image = Icons.Filled.AccountCircle,
             route = "account"
         )
@@ -150,7 +147,6 @@ object NavBarItems {
 }
 
 data class BarItem(
-    val title: String,
     val image: ImageVector,
     val route: String
 )

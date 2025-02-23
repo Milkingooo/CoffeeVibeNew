@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
@@ -55,6 +56,7 @@ fun Registr(
     var isInCorrect by remember { mutableStateOf(false) }
     val loginVm = LoginViewModel(LocalContext.current)
     val context = LocalContext.current
+    var progressState by remember { mutableStateOf(false) }
 
     CoffeeVibeTheme(content = {
         Column(
@@ -203,21 +205,30 @@ fun Registr(
             Button(
 
                 onClick = {
-                    if(password.trim().length <= 6){
+                    if (password.trim().length < 6) {
                         isInCorrect = true
-                        Toast.makeText(context, "Пароль должен быть больше 6 символов", Toast.LENGTH_SHORT).show()
-                    }
-                    else {
+                        Toast.makeText(
+                            context,
+                            "Пароль должен быть больше 6 символов",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
                         loginVm.signUp(
                             email = email,
                             password = password,
                             name = name
                         ) {
+                            progressState = true
+
                             if (it) {
                                 isInCorrect = false
                                 inLogin()
                                 isReg()
-                            } else isInCorrect = true
+                                progressState = false
+                            } else {
+                                isInCorrect = true
+                                progressState = false
+                            }
                         }
                     }
                 },
@@ -230,12 +241,19 @@ fun Registr(
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(
-                    "Продолжить",
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                    color = colorScheme.background,
-                    fontSize = 18.sp
-                )
+                if (progressState) {
+                    CircularProgressIndicator(
+                        color = colorScheme.background,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        "Продолжить",
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                        color = colorScheme.background,
+                        fontSize = 18.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -246,9 +264,9 @@ fun Registr(
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable{
-                    inLogin()
-                },
+                    .clickable {
+                        inLogin()
+                    },
                 color = colorScheme.onBackground,
                 fontFamily = FontFamily(Font(R.font.roboto_condensed_medium))
             )

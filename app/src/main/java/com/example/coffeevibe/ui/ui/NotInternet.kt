@@ -88,31 +88,31 @@ fun NotInternet(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Please check your internet connection",
+                    text = "Please check your internet connection and restart the app",
                     color = colorScheme.onBackground,
                     fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
                     fontSize = 20.sp,
-                    textAlign = TextAlign.Left,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = { onRetryClicked() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = colorScheme.primary),
-                    modifier = Modifier
-                        .width(150.dp)
-                        .padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Text(
-                        text = "Retry",
-                        color = colorScheme.onBackground,
-                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Left
-                    )
-                }
+//                Button(
+//                    onClick = { onRetryClicked() },
+//                    colors = ButtonDefaults.buttonColors(backgroundColor = colorScheme.primary),
+//                    modifier = Modifier
+//                        .width(150.dp)
+//                        .padding(16.dp),
+//                    shape = RoundedCornerShape(16.dp),
+//                ) {
+//                    Text(
+//                        text = "Retry",
+//                        color = colorScheme.onBackground,
+//                        fontFamily = FontFamily(Font(R.font.roboto_condensed_bold)),
+//                        fontSize = 20.sp,
+//                        textAlign = TextAlign.Left
+//                    )
+//                }
             }
         }
     })

@@ -15,7 +15,12 @@ class OrderFinishViewModel : ViewModel() {
     private val firestore = Firebase.firestore
 
 
-    fun createOrder(idUser: String, idAddress: Int, totalPrice: Int, items: List<CartEntity>, idPickupTime: Int) {
+    fun createOrder(idUser: String,
+                    idAddress: Int,
+                    totalPrice: Int,
+                    items: List<CartEntity>,
+                    idPickupTime: Int,
+                    onCompleted: () -> Unit) {
         val idOrder = Random.nextInt(0, 9999).toString()
         val timestamp = Timestamp.from(Instant.now())
 
@@ -37,7 +42,8 @@ class OrderFinishViewModel : ViewModel() {
                 )
             )
                 .addOnSuccessListener {
-                    Log.d("SuccessCreateOrder", idPickupTime.toString())
+                    onCompleted()
+
                     items.forEach {
                         val idOrder2 = Random.nextInt(0, 9999).toString()
                         firestore.collection("OrderItem").document(idOrder2).set(
@@ -48,6 +54,9 @@ class OrderFinishViewModel : ViewModel() {
                             )
                         )
                     }
+                }
+                .addOnFailureListener{
+                    onCompleted()
                 }
         }
         catch (e: Exception) {

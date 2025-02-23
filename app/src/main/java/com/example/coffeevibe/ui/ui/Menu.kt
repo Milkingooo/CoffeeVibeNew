@@ -368,6 +368,7 @@ fun ListItem(
                     contentScale = ContentScale.Crop,
                 )
 
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(

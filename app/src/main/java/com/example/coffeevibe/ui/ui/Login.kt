@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
@@ -55,6 +56,7 @@ fun LoginScreen(
     var isInCorrect by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val loginVm = LoginViewModel(context)
+    var progressState by remember { mutableStateOf(false) }
 
     CoffeeVibeTheme(content = {
         Column(
@@ -168,13 +170,20 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .clickable {
                         MainScope().launch {
-                            if (email.isBlank()){
-                                Toast.makeText(context, "Введите почту", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (email.isNotBlank() && loginVm.checkEmailInDb(email = email)) {
+                            if (email.isBlank()) {
+                                Toast
+                                    .makeText(context, "Введите почту", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else if (email.isNotBlank() && loginVm.checkEmailInDb(email = email)) {
                                 loginVm.sendPasswordResetEmail(email = email)
                             } else {
-                                Toast.makeText(context, "Пользоателя с таким email не существует", Toast.LENGTH_SHORT).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Пользоателя с таким email не существует",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
                             }
                         }
                     },
@@ -198,11 +207,15 @@ fun LoginScreen(
                             login = email,
                             password = password,
                             isLogin = {
+                                progressState = true
+
                                 if (it) {
                                     isInCorrect = false
                                     onLogin()
+                                    progressState = false
                                 } else {
                                     isInCorrect = true
+                                    progressState = false
                                 }
                             }
                         )
@@ -217,12 +230,19 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(52.dp)
             ) {
-                Text(
-                    "Войти",
-                    fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
-                    color = colorScheme.background,
-                    fontSize = 18.sp
-                )
+                if (progressState) {
+                    CircularProgressIndicator(
+                        color = colorScheme.background,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        "Войти",
+                        fontFamily = FontFamily(Font(R.font.roboto_condensed_medium)),
+                        color = colorScheme.background,
+                        fontSize = 18.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

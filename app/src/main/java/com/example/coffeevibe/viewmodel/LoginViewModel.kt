@@ -32,7 +32,10 @@ class LoginViewModel(val context: Context) : ViewModel() {
         }
     }
 
-    fun signUp(email: String, password: String, name: String, isSignUp: (Boolean) -> Unit) {
+    fun signUp(email: String,
+               password: String,
+               name: String,
+               isSignUp: (Boolean) -> Unit) {
         if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && password.length >= 6) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener {

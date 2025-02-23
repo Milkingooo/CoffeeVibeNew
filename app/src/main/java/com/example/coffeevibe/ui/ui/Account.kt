@@ -133,6 +133,7 @@ fun AccountScreen(
 //                    action = {
 //
 //                    })
+                Spacer(modifier = Modifier.weight(1f))
 
                 Button(
                     onClick = {
