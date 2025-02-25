@@ -5,11 +5,14 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class LoginViewModel(val context: Context) : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
@@ -36,7 +39,7 @@ class LoginViewModel(val context: Context) : ViewModel() {
                password: String,
                name: String,
                isSignUp: (Boolean) -> Unit) {
-        if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && password.length >= 6) {
+       if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && password.length >= 6) {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener {
                     isSignUp(true)
