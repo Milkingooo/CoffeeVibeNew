@@ -17,6 +17,7 @@ import com.example.coffeevibe.model.Location
 import com.example.coffeevibe.model.MenuItem
 import com.example.coffeevibe.repository.CartRepository
 import com.example.coffeevibe.utils.AuthUtils
+import com.google.firebase.FirebaseException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -157,5 +158,6 @@ class MenuViewModel(val context: Context) : ViewModel() {
         }
         locations(loc)
     }
+
 
 }

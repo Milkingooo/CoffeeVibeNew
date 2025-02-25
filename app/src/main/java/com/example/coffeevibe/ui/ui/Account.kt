@@ -70,7 +70,7 @@ fun AccountScreen(
 ) {
     val context = LocalContext.current
     val loginVm = LoginViewModel(context)
-    var name by remember { mutableStateOf("Пожалуйста войдите") }
+    var name by remember { mutableStateOf("") }
     var isUserLoggedIn by remember { mutableStateOf(false) }
     isUserLoggedIn = loginVm.isLogin()
 

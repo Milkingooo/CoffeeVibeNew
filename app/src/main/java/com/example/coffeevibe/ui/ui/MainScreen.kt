@@ -43,12 +43,9 @@ import com.example.coffeevibe.viewmodel.OrderViewModel
 fun MainScreen(
     inFinishOrder: () -> Unit,
     onLogin: () -> Unit,
+    menuViewModel: MenuViewModel,
+    orderViewModel: OrderViewModel
 ) {
-    val context = LocalContext.current
-    val passwordDb = CartDatabase.getDatabase(context)
-    val passwordDao = passwordDb.cartDao()
-    val repository = CartRepository(passwordDao)
-    val orderViewModel = OrderViewModel(repository, context)
     val navController = rememberNavController()
 
     CoffeeVibeTheme(content = {
@@ -65,7 +62,7 @@ fun MainScreen(
                     exitTransition = { fadeOut() },
                     popEnterTransition = { fadeIn() },
                     popExitTransition = { fadeOut() }) { MenuScreen( orderVm = orderViewModel,
-                    menuViewModel = MenuViewModel(context)) }
+                    menuViewModel = menuViewModel) }
                 composable(Screen.Cart.route,
                     enterTransition = { fadeIn() },
                     exitTransition = { fadeOut() },

@@ -5,65 +5,67 @@ import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
 class LoginViewModel(val context: Context) : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val db = Firebase.firestore
 
     fun login(login: String, password: String, isLogin: (Boolean) -> Unit) {
-        if (login.isNotBlank() && password.isNotBlank()) {
-            auth.signInWithEmailAndPassword(login, password)
-                .addOnSuccessListener {
-                    isLogin(true)
-                    Toast.makeText(context, "Авторизация прошла успешно", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    isLogin(false)
-                    Toast.makeText(context, "Авторизация не прошла", Toast.LENGTH_SHORT).show()
-                }
-        } else {
+        try {
+            if (login.isNotBlank() && password.isNotBlank()) {
+                auth.signInWithEmailAndPassword(login, password)
+                    .addOnSuccessListener {
+                        isLogin(true)
+                        Toast.makeText(context, "Авторизация прошла успешно", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        isLogin(false)
+                        catchException(e)
+                        Log.d("Login", e.message.toString())
+                    }
+            } else {
+                isLogin(false)
+                Toast.makeText(context, "Заполните все поля", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
             isLogin(false)
-            Toast.makeText(context, "Заполните все поля", Toast.LENGTH_SHORT).show()
+            catchException(e)
         }
     }
 
-    fun signUp(email: String,
-               password: String,
-               name: String,
-               isSignUp: (Boolean) -> Unit) {
-       if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && password.length >= 6) {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener {
-                    isSignUp(true)
-                    addUserInDb(
-                        id = auth.currentUser?.uid.toString(),
-                        email = email,
-                        password = password,
-                        name = name
-                    )
-                    Toast.makeText(context, "Регистрация прошла успешно", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    isSignUp(false)
-                    Toast.makeText(context, "Регистрация не прошла", Toast.LENGTH_SHORT).show()
-                }
-        } else isSignUp(false)
+    fun signUp(email: String, password: String, name: String, isSignUp: (Boolean) -> Unit) {
+        try {
+            if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && password.length >= 6) {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnSuccessListener {
+                        isSignUp(true)
+                        addUserInDb(
+                            id = auth.currentUser?.uid.toString(),
+                            email = email,
+                            password = password,
+                            name = name
+                        )
+                        Toast.makeText(context, "Регистрация прошла успешно", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener { e ->
+                        isSignUp(false)
+                        catchException(e)
+                    }
+            } else isSignUp(false)
+        } catch (e: Exception) {
+            isSignUp(false)
+            catchException(e)
+        }
     }
 
-    private fun addUserInDb(
-        name: String,
-        email: String,
-        password: String,
-        id: String
-    ) {
+    private fun addUserInDb(name: String, email: String, password: String, id: String) {
         viewModelScope.launch {
             db.collection("Client")
                 .add(
@@ -131,5 +133,33 @@ class LoginViewModel(val context: Context) : ViewModel() {
 
     fun isLogin(): Boolean {
         return auth.currentUser != null
+    }
+
+    private fun catchException(e: Exception) {
+        if (e is FirebaseAuthUserCollisionException) {
+            when (e.errorCode) {
+                "ERROR_EMAIL_ALREADY_IN_USE" -> Toast.makeText(context, "Email уже используется", Toast.LENGTH_SHORT).show()
+                "ERROR_WEAK_PASSWORD" -> Toast.makeText(context, "Пароль слишком слабый", Toast.LENGTH_SHORT).show()
+                "ERROR_INVALID_EMAIL" -> Toast.makeText(context, "Неверный email", Toast.LENGTH_SHORT).show()
+                "ERROR_WRONG_PASSWORD" -> Toast.makeText(context, "Неверный пароль", Toast.LENGTH_SHORT).show()
+                "ERROR_USER_NOT_FOUND" -> Toast.makeText(context, "Пользователь не найден", Toast.LENGTH_SHORT).show()
+                "ERROR_TOO_MANY_REQUESTS" -> Toast.makeText(context, "Слишком много запросов", Toast.LENGTH_SHORT).show()
+                "ERROR_INVALID_CREDENTIAL" -> Toast.makeText(context, "Неверный логин или пароль", Toast.LENGTH_SHORT).show()
+                "ERROR_EMAIL_NOT_FOUND" -> Toast.makeText(context, "Email не найден", Toast.LENGTH_SHORT).show()
+                "ERROR_OPERATION_NOT_ALLOWED" -> Toast.makeText(context, "Операция недоступна", Toast.LENGTH_SHORT).show()
+                "ERROR_USER_DISABLED" -> Toast.makeText(context, "Пользователь отключен", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (e is FirebaseAuthInvalidCredentialsException) {
+            when (e.errorCode) {
+                "ERROR_INVALID_EMAIL" -> Toast.makeText(context, "Неверный email", Toast.LENGTH_SHORT).show()
+                "ERROR_INVALID_PASSWORD" -> Toast.makeText(context, "Неверный пароль", Toast.LENGTH_SHORT).show()
+                "ERROR_WRONG_PASSWORD" -> Toast.makeText(context, "Неверный пароль", Toast.LENGTH_SHORT).show()
+                "ERROR_USER_NOT_FOUND" -> Toast.makeText(context, "Пользователь не найден", Toast.LENGTH_SHORT).show()
+                "ERROR_INVALID_CREDENTIAL" -> Toast.makeText(context, "Неверный логин или пароль", Toast.LENGTH_SHORT).show()
+                else -> Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
