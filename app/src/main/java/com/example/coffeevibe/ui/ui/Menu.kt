@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -213,7 +214,7 @@ fun MenuScreen(
                                 click = {
                                     scope.launch {
                                         val index = categoryIndexMap[category] ?: 0
-                                        listState2.scrollToItem(index)
+                                        listState2.animateScrollToItem(index)
                                     }
                                 }
                             )
@@ -420,7 +421,8 @@ fun ListItem(
                             text = "Недоступен",
                             color = colorScheme.error,
                             textAlign = TextAlign.Center,
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            modifier = Modifier.wrapContentWidth()
                         )
                     } else {
                         Text(
